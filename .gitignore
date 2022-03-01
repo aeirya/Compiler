@@ -33,3 +33,7 @@ main
 
 # Flex files
 src/lex.yy.*
+
+# Output files
+out/
+report/
