@@ -8,7 +8,12 @@
 using namespace std ;
 
 int main(int argc, char* argv[]){
-    yylex();
+    while (1)
+    {
+        yylex();
+    }
+    return 0;
+    
 
     // if (argc < 5){
     //     cerr<< "Usage: " << argv[0] << " -i <input> -o <output>" << endl ;
