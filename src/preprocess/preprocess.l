@@ -30,19 +30,17 @@
     void inline remember() 
     {
         my_map.insert(pair<string, string>(def_id, def_body));
+        // todo: replace on redefinition
     }
 
 
 %}
 
-INTEGER   [0-9]*
-FLOAT   [0-9]+\.[0-9]*
-STRING  \"[^\"]*\"
 ID      [a-zA-Z][a-zA-Z0-9]*
 
 %%
 
-[(//)]  {
+\/\/  {
     ignore_line = true;
 }
 
@@ -71,11 +69,6 @@ ID      [a-zA-Z][a-zA-Z0-9]*
         }
         else check_def_body();
     }
-}
-
-{STRING}|{INTEGER}|{FLOAT}   {
-    if (!ignore_line) ECHO;
-    check_def_body();
 }
 
 \n  {
