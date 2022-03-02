@@ -10,9 +10,11 @@
 %%
 
 INTEGER [\+-]?[0-9]+
-FLOAT   [\+-]?[0-9]+\.[0-9]+
-SCI_FLOAT   {FLOAT}e{INTEGER}
-ID      [A-Za-z][A-Za-z0-9]*
+HEXADECIMAL 0(x|X)[0-9a-fA-F]*
+FLOAT   [\+-]?(([0-9]*\.[0-9]+)|([0-9]+\.[0-9]*))
+SCI_FLOAT   {FLOAT}(e|E){INTEGER}
+ID      [A-Za-z_][A-Za-z0-9_]*
+STRING  \"[^\"]*\"
 
 %%
 
