@@ -22,6 +22,9 @@ Input:
 define fori for(int i=0; i<100;++i) {
 while fori
 }
+/* 
+this is a sample comment /* // hmm
+*/
 ```
 Output:
 ```

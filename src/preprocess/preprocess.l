@@ -11,6 +11,8 @@
 
     bool ignore_line = false;
 
+    bool multiline_comment = false;
+
     bool def_flag = false;
     bool id_flag = false;
     char def_id[50];
@@ -46,7 +48,20 @@ ID      [a-zA-Z][a-zA-Z0-9]*
 
 ^define  {
     ignore_line = true;
-    def_flag = true;
+    if (!multiline_comment) def_flag = true;
+}
+
+\/\*    {
+    ignore_line = true;
+    multiline_comment = true;
+}
+
+\*\/    {
+    if (multiline_comment)
+    {
+        ignore_line = false;
+        multiline_comment = false;
+    }
 }
 
 {ID}  {
@@ -79,24 +94,32 @@ ID      [a-zA-Z][a-zA-Z0-9]*
         if (id_flag) remember();
         else /* define body missing */;
     }
-    ignore_line = false;
 
-    def_flag = false;
-    id_flag = false;
-    dbp = 0;
+    if (!multiline_comment)
+    {
+        ignore_line = false;
+
+        def_flag = false;
+        id_flag = false;
+        dbp = 0;
+    }
+
 }
 
 [ \t]*    {
     if (!ignore_line) ECHO;
     
-    /* this skips the whitespace after macro id and before body */ 
-    if (dbp) check_def_body();
-    else if (id_flag) dbp = def_body; 
+    if (!multiline_comment) 
+    {
+        /* this skips the whitespace after macro id and before body */ 
+        if (dbp) check_def_body();
+        else if (id_flag) dbp = def_body; 
+    }
 }
 
 .   {
     if (!ignore_line) ECHO;
-    check_def_body();
+    if (!multiline_comment) check_def_body();
 }
 
 %% 
