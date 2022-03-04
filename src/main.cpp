@@ -1,37 +1,50 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
+#include <string.h>
 
 #include "lex.yy.h"
 
-using namespace std ;
+#define RC printf("checkout!\n");
 
-int main(int argc, char* argv[]){
-    while (1)
+
+int main(int argc, char* argv[])
+{
+    bool in_flag = false, out_flag = false;
+    char *in_name, *out_name; /* input and output filepaths */
+
+    for (int i=0; i<argc; ++i) 
     {
-        yylex();
+        if (strcmp(argv[i], "-i") == 0) 
+        {
+            in_flag = true;
+            yyin = fopen((in_name=argv[++i]), "r");
+        }
+        else yyin = stdin;
+        
+        if (strcmp(argv[i], "-o") == 0) 
+        {
+            out_flag = true;
+            yyout = fopen((out_name=argv[++i]), "w");
+        }
+        else yyout = stdout;
     }
-    return 0;
+
+    /* preproces */
+    const char* temp_name = "temp.df";
+    if (in_flag) 
+    {
+        char precmd[100];
+        sprintf(precmd, "./pre < %s > %s", in_name, temp_name);
+        system(precmd);
+        fclose(yyin);
+        yyin = fopen(temp_name, "r");
+    }
+    else /* if in interactive mode, disable preprocess */;
     
+    yylex();
 
-    // if (argc < 5){
-    //     cerr<< "Usage: " << argv[0] << " -i <input> -o <output>" << endl ;
-    //     return 1;
-    // }
+    // delete dump file
+    remove(temp_name);
+    // close streams
+    fclose(yyout);
 
-    // string input_file_path = argv[2];
-    // string output_file_path = argv[4];
-
-    // ofstream output_file(output_file_path) ;
-    // output_file << "class" << endl ;
-    // output_file << "T_ID Program" << endl ;
-    // output_file << "{" << endl ;
-    // output_file << "void" << endl ;
-    // output_file << "T_ID main" << endl ;
-    // output_file << "(" << endl ;
-    // output_file << ")" << endl ;
-    // output_file << "{" << endl ;
-    // output_file << "}" << endl ;
-    // output_file << "}";
+    return 0;
 }
