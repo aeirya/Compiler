@@ -15,8 +15,10 @@
 
     bool def_flag = false;
     bool id_flag = false;
-    char def_id[50];
-    char def_body[100];
+    #define DEF_ID_SIZE 50
+    char def_id[DEF_ID_SIZE];
+    #define DEF_BODY_SIZE 100
+    char def_body[DEF_BODY_SIZE];
     char* dbp = 0;    // define body pointer
 
     map<string, string> my_map;
@@ -38,7 +40,7 @@
 
 %}
 
-ID      [a-zA-Z][a-zA-Z0-9]*
+ID      [a-zA-Z][a-zA-Z0-9_]*
 
 %%
 
@@ -52,8 +54,11 @@ ID      [a-zA-Z][a-zA-Z0-9]*
 }
 
 \/\*    {
-    ignore_line = true;
-    multiline_comment = true;
+    if (!ignore_line)
+    {
+        ignore_line = true;
+        multiline_comment = true;
+    }
 }
 
 \*\/    {
@@ -61,6 +66,11 @@ ID      [a-zA-Z][a-zA-Z0-9]*
     {
         ignore_line = false;
         multiline_comment = false;
+    }
+    else 
+    {
+        ECHO;
+        check_def_body();
     }
 }
 
@@ -102,6 +112,11 @@ ID      [a-zA-Z][a-zA-Z0-9]*
         def_flag = false;
         id_flag = false;
         dbp = 0;
+
+        for (int i=0; i<DEF_ID_SIZE; ++i)
+            def_id[i] = 0;
+        for (int i=0; i<DEF_BODY_SIZE; ++i)
+            def_body[i] = 0;
     }
 
 }
