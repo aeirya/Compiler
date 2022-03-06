@@ -29,22 +29,22 @@ int main(int argc, char* argv[])
 
     /* preproces */
     const char* temp_name = "temp.df";
-    if (in_flag) 
-    {
-        char precmd[100];
-        sprintf(precmd, "./pre < %s > %s", in_name, temp_name);
-        system(precmd);
-        fclose(yyin);
-        yyin = fopen(temp_name, "r");
-    }
-    else /* if in interactive mode, disable preprocess */;
-    
+    // if (in_flag) 
+    // {
+    //     char precmd[100];
+    //     sprintf(precmd, "./pre.out < %s > %s", in_name, temp_name);
+    //     system(precmd);
+    //     fclose(yyin);
+    //     yyin = fopen(temp_name, "r");
+    // }
+    // else /* if in interactive mode, disable preprocess */;
+
     yylex();
 
     // delete dump file
     remove(temp_name);
     // close streams
-    fclose(yyout);
+    // fclose(yyout);
 
     return 0;
 }
