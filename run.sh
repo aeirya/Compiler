@@ -12,6 +12,12 @@ cd $TEST_DIRECTORY
 prefix="t" ;
 dirlist=(`ls ${prefix}*.in`) ;
 cd ../
+
+cd $SOURCE_DIRECTORY
+make clean
+make
+cd ../
+
 for filelist in ${dirlist[*]}
 do
     filename=`echo $filelist | cut -d'.' -f1`;
@@ -19,8 +25,8 @@ do
     report_filename="$filename.report.txt"
     echo "Running Test $filename -------------------------------------"
     cd $SOURCE_DIRECTORY
-    make clean
-    make
+    # make clean
+    # make
     if [ $? -eq 1 ]; then
         cd ..
         echo "Code did not Compile"
