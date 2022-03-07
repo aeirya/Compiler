@@ -17,18 +17,16 @@ int main(int argc, char* argv[])
             in_flag = true;
             yyin = fopen((in_name=argv[++i]), "r");
         }
-        else yyin = stdin;
         
         if (strcmp(argv[i], "-o") == 0) 
         {
             out_flag = true;
             yyout = fopen((out_name=argv[++i]), "w");
         }
-        else yyout = stdout;
     }
 
     /* preproces */
-    const char* temp_name = "temp.df";
+    // const char* temp_name = "temp.df";
     // if (in_flag) 
     // {
     //     char precmd[100];
@@ -39,10 +37,11 @@ int main(int argc, char* argv[])
     // }
     // else /* if in interactive mode, disable preprocess */;
 
+    // while (true)
     yylex();
 
     // delete dump file
-    remove(temp_name);
+    // remove(temp_name);
     // close streams
     // fclose(yyout);
 
