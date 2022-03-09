@@ -10,8 +10,6 @@
     http://westes.github.io/flex/manual/Multiple-Input-Buffers.html
 */
 
-#include <iostream>
-
 #define YY_DECL int yylex()
 
 #include <string>
@@ -21,15 +19,25 @@ using std::string;
 using std::map;
 using std::pair;
 
-bool id_flag = false;
+
+/*
+    definitions and utilities for define functionality
+*/
+#pragma region define
+
 #define DEF_ID_SIZE 100
+bool id_flag = false;
 char def_id[DEF_ID_SIZE];
 
-#define DEF_BODY_SIZE 250
+#define DEF_BODY_SIZE 350
 char def_body[DEF_BODY_SIZE];
 int dbp = 0;  /* def body pointer */
 
 bool dmap_flag = false; /* dmap read mode flag */
+/*
+    maps id -> code to be replaced
+    everything "define"ed will be stored here
+*/
 map<string, string> dmap;
 
 inline bool is_macro(char* id) 
@@ -38,15 +46,16 @@ inline bool is_macro(char* id)
     return !((it = dmap.find(id)) == dmap.end());
 }
 
-string get_macro(char *id) 
+inline string get_macro(char *id) 
 {
     map<string, string>::const_iterator it;
     return dmap.find(id)->second;
 }
 
-#include "tokens.h"
-typedef void* yyscan_t;
+#pragma endregion define
 
+
+#include "tokens.h"
 
 /*  TOKEN: token name   
     yytext: token lexeme    */
@@ -61,11 +70,16 @@ YY_BUFFER_STATE main_buf_state;
 INTEGER     [0-9]+
 HEXADECIMAL 0(x|X)[0-9a-fA-F]+
 FLOAT   [0-9]+\.[0-9]*
-SCI_FLOAT   {FLOAT}(e|E)(\+|-)?{INTEGER}
+SCI_FLOAT   {FLOAT}((e|E)(\+|-)?{INTEGER})
 ID      [A-Za-z_][A-Za-z0-9_]*
 STRING  \"([^\"]|(\\\"))*\"
-OPERATOR    \+|-|\*|\/|<|<=|>|>=|!=|==|&&|(\|\|)|=|(\+=)|-=|(\*=)|(\/=)
-SYMBOL  [\{\}\(\)\;\[\],-\.%\\!]
+SYMBOL  [\{\}\(\)\;\[\],-\.%\\!(\[\])]
+
+OP_LOGIC        &&|(\|\|)
+OP_ARITHMETIC   \+|-|\*|\/
+OP_COMPARISON   <|<=|>|>=|!=|==   
+OP_ASSIGN       =|(\+=)|-=|(\*=)|(\/=)
+OPERATOR        {OP_LOGIC}|{OP_ARITHMETIC}|{OP_COMPARISON}|{OP_ASSIGN}
 
 RK_TYPE         void|int|double|bool|string|class
 RK_FLOW_CONTROL for|while|if|else|return|break|continue
@@ -93,31 +107,37 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         BEGIN(IN_DEFINE);
     }
     
+    true|false {
+        PRINT_TOKEN(T_BOOLEANLITERAL);
+    }
+
     {RSERVED_KEYWORD}|{OPERATOR} {
         ECHO;
         PRINT_NEWLINE;
     }
-    true|false {
-        PRINT_TOKEN(T_BOOLEANLITERAL);
-    }
+
     {INTEGER}|{HEXADECIMAL} {
         PRINT_TOKEN(T_INTLITERAL);
     }
+
     {FLOAT}|{SCI_FLOAT} {
         PRINT_TOKEN(T_DOUBLELITERAL);
     }
+
     {STRING} {
         PRINT_TOKEN(T_STRINGLITERAL);
     }
+
     {ID} {
         if (!is_macro(yytext)) { PRINT_TOKEN(T_ID); }
-        else 
+        else /* check for macro definition */
         {
             main_buf_state = YY_CURRENT_BUFFER;
             dmap_flag = true;
             yy_scan_string(get_macro(yytext).c_str());
         }
     }
+
     {SYMBOL} {
         ECHO;
         PRINT_NEWLINE;
@@ -134,7 +154,6 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         }
         else yyterminate();
     }
-
 }
 
 <IN_DEFINE>{
@@ -148,7 +167,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
                 def_body[dbp+i] = yytext[i];
             dbp += yyleng;
         }
-        
+
         id_flag = true;
     }
 
@@ -159,7 +178,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
 
         /* reset vars */
         for (int i=0; i<DEF_ID_SIZE; ++i) def_id[i] = 0;
-        for (int i=0; i<dbp; ++i) def_body[i] = 0;
+        for (int i=0; i<dbp && def_body[i]!=0; ++i) def_body[i] = 0;
         dbp = 0;
         id_flag = false;
 

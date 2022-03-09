@@ -1,15 +1,22 @@
 #include <string.h>
 
+/*  scanner header
+    exports: yylex 
+    */
 #include "lex.yy.h"
 
+/* utility macros */
 #define RC printf("checkout!\n");
 
+/* config */
+#define IS_PREPROCESS false 
 
 int main(int argc, char* argv[])
 {
     bool in_flag = false, out_flag = false;
     char *in_name, *out_name; /* input and output filepaths */
 
+    /* parse input */
     for (int i=0; i<argc; ++i) 
     {
         if (strcmp(argv[i], "-i") == 0) 
@@ -26,24 +33,31 @@ int main(int argc, char* argv[])
     }
 
     /* preproces */
-    // const char* temp_name = "temp.df";
-    // if (in_flag) 
-    // {
-    //     char precmd[100];
-    //     sprintf(precmd, "./pre.out < %s > %s", in_name, temp_name);
-    //     system(precmd);
-    //     fclose(yyin);
-    //     yyin = fopen(temp_name, "r");
-    // }
-    // else /* if in interactive mode, disable preprocess */;
+    const char* temp_name = "temp.df";
+    if (IS_PREPROCESS) 
+    {
+        if (in_flag) 
+        {
+            char precmd[100];
+            sprintf(precmd, "./pre.out < %s > %s", in_name, temp_name);
+            system(precmd);
+            fclose(yyin);
+            yyin = fopen(temp_name, "r");
+        }
+        else /* if in interactive mode, disable preprocess */;
+    }
 
-    // while (true)
+    /* start scanning and call the scanner */
     yylex();
 
-    // delete dump file
-    // remove(temp_name);
-    // close streams
-    // fclose(yyout);
+    /* clean up */
+    if (IS_PREPROCESS)
+    {
+        // delete dump file
+        if (in_flag) remove(temp_name);
+        // close streams
+        fclose(yyout);
+    }
 
     return 0;
 }

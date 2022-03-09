@@ -4,7 +4,10 @@ typedef enum Token
     T_INTLITERAL,
     T_DOUBLELITERAL,
     T_STRINGLITERAL,
-    T_BOOLEANLITERAL
+    T_BOOLEANLITERAL,
+
+    T_OR,
+    T_Dims,
 } Token;
 
 const char* token_to_str(Token token) 
