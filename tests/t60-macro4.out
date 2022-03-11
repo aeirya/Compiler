@@ -38,4 +38,4 @@ T_ID anString
 T_STRINGLITERAL "xyzxxtxxx"
 T_ID anotherString
 =
-T_STRINGLITERAL "doubleX"
+T_STRINGLITERAL "xx"

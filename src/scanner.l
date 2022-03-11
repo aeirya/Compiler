@@ -67,13 +67,13 @@ YY_BUFFER_STATE main_buf_state;
 
 %}
 
-INTEGER     [0-9]+
-HEXADECIMAL 0(x|X)[0-9a-fA-F]+
-FLOAT   [0-9]+\.[0-9]*
-SCI_FLOAT   {FLOAT}((e|E)(\+|-)?{INTEGER})
-ID      [A-Za-z_][A-Za-z0-9_]*
-STRING  \"([^\"]|(\\\"))*\"
-SYMBOL  [\{\}\(\)\;\[\],-\.%\\!(\[\])]
+INTEGER         [0-9]+
+HEXADECIMAL     0(x|X)[0-9a-fA-F]+
+FLOAT           [0-9]+\.[0-9]*
+SCI_FLOAT       {FLOAT}((e|E)(\+|-)?{INTEGER})
+ID              [A-Za-z_][A-Za-z0-9_]*
+STRING          \"([^\"]|(\\\"))*\"
+SYMBOL          [\{\}\(\)\;\[\],-\.%\\!(\[\])]
 
 OP_LOGIC        &&|(\|\|)
 OP_ARITHMETIC   \+|-|\*|\/
@@ -132,8 +132,10 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         if (!is_macro(yytext)) { PRINT_TOKEN(T_ID); }
         else /* check for macro definition */
         {
+            //  saving the pointer to the buffer for later return
             main_buf_state = YY_CURRENT_BUFFER;
             dmap_flag = true;
+            //  passing the defined value back to the flex
             yy_scan_string(get_macro(yytext).c_str());
         }
     }
@@ -149,6 +151,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
 
     <<EOF>> {
         if (dmap_flag) {
+            //  return to the previous buffer
             yy_switch_to_buffer(main_buf_state);
             dmap_flag = false;
         }
@@ -160,11 +163,13 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     {}
 
     {ID}    {
+        //  extracting the define id
         if (!id_flag) strcpy(def_id, yytext);
+        //  extracting the define value
         else
         {
-            for (int i=0; i<yyleng; ++i)
-                def_body[dbp+i] = yytext[i];
+            for (int i = 0; i < yyleng; ++i)
+                def_body[dbp + i] = yytext[i];
             dbp += yyleng;
         }
 
@@ -177,8 +182,6 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         dmap.insert(pair<string, string>(def_id, def_body));
 
         /* reset vars */
-        for (int i=0; i<DEF_ID_SIZE; ++i) def_id[i] = 0;
-        for (int i=0; i<dbp && def_body[i]!=0; ++i) def_body[i] = 0;
         dbp = 0;
         id_flag = false;
 
@@ -186,8 +189,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     }
 
     .       {
-        for (int i=0; i<yyleng; ++i)
-            def_body[dbp+i] = yytext[i];
+        for (int i = 0; i < yyleng; ++i)
+            def_body[dbp + i] = yytext[i];
         dbp += yyleng;
     }
 }
