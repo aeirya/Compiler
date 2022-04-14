@@ -18,6 +18,8 @@ make clean
 make
 cd ../
 
+echo "[Phase 1]: Lexer"
+
 for filelist in ${dirlist[*]}
 do
     filename=`echo $filelist | cut -d'.' -f1`;
@@ -33,7 +35,7 @@ do
     else
         cd ..
         echo "Code compiled successfuly"
-        ./main -i $TEST_DIRECTORY$filelist -o $OUTPUT_DIRECTORY$output_filename
+        ./Lexer -i $TEST_DIRECTORY$filelist -o $OUTPUT_DIRECTORY$output_filename
         if [ $? -eq 0 ]; then
             echo "Code Executed Successfuly!"
             if command -v python3 > /dev/null; then
@@ -61,3 +63,4 @@ done
 echo "Passed : $NUMBER_OF_PASSED"
 echo "Failed : $NUMBER_OF_FAILED"
 
+echo "--------------------------------------------"
