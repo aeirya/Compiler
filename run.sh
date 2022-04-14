@@ -14,7 +14,7 @@ make clean
 make
 cd ../
 
-echo "[Phase 1]: Lexer"
+echo "[Phase 1]: Lexer Started"
 TEST_DIR=${TEST_DIRECTORY}Lexer/
 OUT_DIR=${OUTPUT_DIRECTORY}Lexer/
 REP_DIR=${REPORT_DIRECTORY}Lexer/
@@ -64,6 +64,7 @@ do
 
 done
 
+echo "[Phase 1]: Lexer Completed:"
 echo "Passed : $NUMBER_OF_PASSED"
 echo "Failed : $NUMBER_OF_FAILED"
 
