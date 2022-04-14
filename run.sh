@@ -69,3 +69,15 @@ echo "Passed : $NUMBER_OF_PASSED"
 echo "Failed : $NUMBER_OF_FAILED"
 
 echo "--------------------------------------------"
+
+echo "[Phase 2]: Parser Started"
+TEST_DIR=${TEST_DIRECTORY}Parser/
+OUT_DIR=${OUTPUT_DIRECTORY}Parser/
+REP_DIR=${REPORT_DIRECTORY}Parser/
+
+mkdir -p $OUT_DIR
+mkdir -p $REP_DIR
+cd $TEST_DIR
+prefix="t" ;
+dirlist=(`ls ${prefix}*.in`) ;
+cd ../..
