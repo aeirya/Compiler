@@ -29,7 +29,7 @@
 # Executables
 *.exe
 *.app
-main
+lexer
 
 # Flex files
 src/lex.yy.*

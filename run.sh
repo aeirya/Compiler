@@ -8,15 +8,23 @@ NUMBER_OF_PASSED=0
 NUMBER_OF_FAILED=0
 mkdir -p $OUTPUT_DIRECTORY
 mkdir -p $REPORT_DIRECTORY
-cd $TEST_DIRECTORY
-prefix="t" ;
-dirlist=(`ls ${prefix}*.in`) ;
-cd ../
 
 cd $SOURCE_DIRECTORY
 make clean
 make
 cd ../
+
+echo "[Phase 1]: Lexer Started"
+TEST_DIR=${TEST_DIRECTORY}Lexer/
+OUT_DIR=${OUTPUT_DIRECTORY}Lexer/
+REP_DIR=${REPORT_DIRECTORY}Lexer/
+
+mkdir -p $OUT_DIR
+mkdir -p $REP_DIR
+cd $TEST_DIR
+prefix="t" ;
+dirlist=(`ls ${prefix}*.in`) ;
+cd ../..
 
 for filelist in ${dirlist[*]}
 do
@@ -25,21 +33,19 @@ do
     report_filename="$filename.report.txt"
     echo "Running Test $filename -------------------------------------"
     cd $SOURCE_DIRECTORY
-    # make clean
-    # make
     if [ $? -eq 1 ]; then
         cd ..
         echo "Code did not Compile"
     else
         cd ..
         echo "Code compiled successfuly"
-        ./main -i $TEST_DIRECTORY$filelist -o $OUTPUT_DIRECTORY$output_filename
+        ./lexer -i $TEST_DIR$filelist -o $OUT_DIR$output_filename
         if [ $? -eq 0 ]; then
             echo "Code Executed Successfuly!"
             if command -v python3 > /dev/null; then
-                python3 comp.py -a "$OUTPUT_DIRECTORY$output_filename" -b "$TEST_DIRECTORY$output_filename" -o "$REPORT_DIRECTORY$report_filename"
+                python3 comp.py -a "$OUT_DIR$output_filename" -b "$TEST_DIR$output_filename" -o "$REP_DIR$report_filename"
             else
-                python comp.py -a "$OUTPUT_DIRECTORY$output_filename" -b "$TEST_DIRECTORY$output_filename" -o "$REPORT_DIRECTORY$report_filename"
+                python comp.py -a "$OUT_DIR$output_filename" -b "$TEST_DIR$output_filename" -o "$REP_DIR$report_filename"
             fi
             if [[ $? = 0 ]]; then
                 ((NUMBER_OF_PASSED++))
@@ -58,6 +64,20 @@ do
 
 done
 
+echo "[Phase 1]: Lexer Completed:"
 echo "Passed : $NUMBER_OF_PASSED"
 echo "Failed : $NUMBER_OF_FAILED"
 
+echo "--------------------------------------------"
+
+echo "[Phase 2]: Parser Started"
+TEST_DIR=${TEST_DIRECTORY}Parser/
+OUT_DIR=${OUTPUT_DIRECTORY}Parser/
+REP_DIR=${REPORT_DIRECTORY}Parser/
+
+mkdir -p $OUT_DIR
+mkdir -p $REP_DIR
+cd $TEST_DIR
+prefix="t" ;
+dirlist=(`ls ${prefix}*.in`) ;
+cd ../..
