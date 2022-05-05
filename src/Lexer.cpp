@@ -1,9 +1,8 @@
-#include <string.h>
-
 /*  scanner header
     exports: yylex 
     */
-#include "lex.yy.h"
+# include "heading.h"
+# include "lex.yy.h"
 
 int main(int argc, char* argv[])
 {

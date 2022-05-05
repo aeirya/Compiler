@@ -14,6 +14,7 @@
 
 #include <string>
 #include <map>
+#include "heading.h"
 
 using std::string;
 using std::map;
