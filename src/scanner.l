@@ -1,8 +1,11 @@
 %option noyywrap
 %option yylineno
-%option header-file="lex.yy.h"
+/* %option header-file="lex.yy.h" */
 
 %{
+
+#include <string>
+
 /*
     references:
 
@@ -10,15 +13,7 @@
     http://westes.github.io/flex/manual/Multiple-Input-Buffers.html
 */
 
-#define YY_DECL int yylex()
-
-#include "tokens.h"
-
-/*  TOKEN: token name   
-    yytext: token lexeme    */
-#define PRINT_TOKEN(TOKEN) fprintf(yyout, "%s %s\n", token_to_str(TOKEN), yytext); 
-
-#define PRINT_NEWLINE fprintf(yyout, "\n")
+#include "parser.tab.h"
 
 %}
 
@@ -28,7 +23,8 @@ FLOAT           [0-9]+\.[0-9]*
 SCI_FLOAT       {FLOAT}((e|E)(\+|-)?{INTEGER})
 ID              [A-Za-z_][A-Za-z0-9_]*
 STRING          \"([^\"]|(\\\"))*\"
-SYMBOL          [\{\}\(\)\;\[\],-\.%\\!(\[\])]
+SYMBOL          [\{\}\(\)\;\[\],-\.%\\!]
+ARRAY_SYMBOL    (\[\])
 
 OP_LOGIC        &&|(\|\|)
 OP_ARITHMETIC   \+|-|\*|\/
@@ -57,34 +53,68 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         BEGIN(IN_ONELINE_COMMENT);
     }
 
-    true|false {
-        PRINT_TOKEN(T_BOOLEANLITERAL);
+    void    { return T_VOID; }
+    int     { return T_INT; }
+    double  { return T_DOUBLE; }
+    string  { return T_STRING; }
+    bool    { return T_BOOLEAN; }
+    class   { return T_CLASS; }
+
+    true {
+        yylval.boolval = true;
+        return T_BOOLEAN_LITERAL;
+    }
+    
+    false {
+        yylval.boolval = false;
+        return T_BOOLEAN_LITERAL;
     }
 
-    {RSERVED_KEYWORD}|{OPERATOR} {
-        ECHO;
-        PRINT_NEWLINE;
+    {RSERVED_KEYWORD} {
+        // TODO: write all    
+    }
+        
+    {OPERATOR} {
+        // TODO: save operator in data type
+        return T_OPERATOR;
     }
 
-    {INTEGER}|{HEXADECIMAL} {
-        PRINT_TOKEN(T_INTLITERAL);
+    {INTEGER} {
+        yylval.intval = atoi(yytext);
+        return T_INT_LITERAL;
     }
 
-    {FLOAT}|{SCI_FLOAT} {
-        PRINT_TOKEN(T_DOUBLELITERAL);
+    {HEXADECIMAL} {
+        // TODO: set intval
+        return T_INT_LITERAL;
+    }
+
+    {FLOAT} {
+        yylval.doubleval = strtod(yytext, 0);
+        return T_DOUBLE_LITERAL;
+    }
+
+    {SCI_FLOAT} {
+        // TODO: set doubleval
+        return T_DOUBLE_LITERAL;
     }
 
     {STRING} {
-        PRINT_TOKEN(T_STRINGLITERAL);
+        yylval.strval = yytext;
+        return T_STRING_LITERAL;
     }
 
     {ID} {
-        PRINT_TOKEN(T_ID);
+        yylval.strval = yytext;
+        return T_ID;
+    }
+
+    {ARRAY_SYMBOL} {
+        return T_ARRAY;
     }
 
     {SYMBOL} {
-        ECHO;
-        PRINT_NEWLINE;
+        return yytext[0];
     }
 
     [ \t\n] ;
@@ -93,6 +123,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
 
     <<EOF>> {
         yyterminate();
+        return 0;
     }
 }
 
