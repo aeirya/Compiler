@@ -34,6 +34,11 @@ lexer
 # Flex files
 src/lex.yy.*
 
+# Bison files
+src/*.tab.c
+src/*.tab.h
+src/*.output
+
 # Output files
 out/
 report/
