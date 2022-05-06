@@ -39,6 +39,8 @@
 %token T_OPERATOR_ASSIGN
 %token T_ARRAY
 
+%token T_THIS
+%token T_NULL
 
 %%
 
@@ -83,7 +85,7 @@ type:   T_INT                                           //  int
     |   T_BOOLEAN                                       //  bool
     |   T_STRING                                        //  string
     |   T_ID                                            //  ident
-    |   type '[' ']'                                    //  Type[]
+    |   type T_ARRAY                                    //  Type[]
 
 stmt_block: '{' stmt_body '}'                           //  {VariableDecl∗ Stmt∗}
 
@@ -107,6 +109,7 @@ constant:   T_INT_LITERAL                               //  intConstant
     |       T_DOUBLE_LITERAL                            //  doubleConstant
     |       T_BOOLEAN_LITERAL                           //  boolConstant
     |       T_STRING_LITERAL                            //  stringConstant
+    |       T_NULL
     //  TODO
 %%
 
