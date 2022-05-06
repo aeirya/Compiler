@@ -3,6 +3,7 @@
     // #include <string>
     #include <stdio.h>
     #include <iostream>
+    #define YYDEBUG 1
 
     using namespace std;
 
@@ -34,13 +35,16 @@
 %token T_CLASS
 %token T_PUBLIC
 %token T_PRIVATE
+%token T_THIS
+%token T_NULL
+%token T_RETURN
+%token T_PRINT
+%token T_NEW
+%token T_READ_LINE
 
 %token T_OPERATOR
 %token T_OPERATOR_ASSIGN
 %token T_ARRAY
-
-%token T_THIS
-%token T_NULL
 
 %%
 
@@ -72,12 +76,11 @@ function_decl:  type T_ID '(' formals ')' stmt_block    //  Type ident (Formals)
     |         T_VOID T_ID '(' formals ')' stmt_block    //  void ident (Formals) StmtBlock
 
 //  TODO: **Left-recursion?!**
-
 formals: /* epsilon */
     |   formals_nonempty
 
 formals_nonempty: variable
-    |   formals_nonempty ',' variable                   //  Variable+ ,
+    |             formals_nonempty ',' variable         //  Variable+ ,
 
 //  TODO: **Left-recursion?!**
 type:   T_INT                                           //  int
@@ -96,20 +99,53 @@ stmt_body:/* epsilon */
     |   stmt stmt_body
 
 stmt:   ';' |   expr ';'                                //  < Expr >;
+    |   return_stmt                                     //  ReturnStmt
+    |   print_stmt                                      //  PrintStmt
     //  TODO
 
-expr:   l_value T_OPERATOR_ASSIGN expr                  //  LValue = Expr | LValue [+*/-]= Expr
-    |   constant                                        //  Constant
+return_stmt:    T_RETURN ';'                            //  return < Expr >;
+    |           T_RETURN expr ';'                       //  return < Expr >;
+
+print_stmt:     T_PRINT '(' print_stmt_in ')' ';'       //  Print (Expr+ , );
+
+print_stmt_in:  expr
+    |           print_stmt_in ',' expr
+
+expr:   assignment                                      //  LValue = Expr
+    |   expr_
     //  TODO
+
+//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
+expr_:  '(' expr ')'                                    //  (Expr)
+    |   constant                                        //  Constant
+    |   l_value                                         //  LValue
+    |   T_THIS                                          //  this
+    |   call                                            //  Call
+    |   T_READ_LINE '(' ')'
+    |   T_NEW T_ID                                      //  new ident
+    //  TODO
+
+//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
+assignment: l_value '=' expr                            //  LValue = Expr
+
+call:   T_ID '(' actuals ')'                            //  ident(Actuals)
+    |   expr_ '.' T_ID '(' actuals ')'                  //  Expr.ident (Actuals) [TODO : expr_ --> exp without SR errors]
+
+actuals: /* epsilon */
+    |   actuals_nonempty
+
+actuals_nonempty:   expr
+    |               actuals_nonempty ',' expr           //  Actuals+ ,
 
 l_value:    T_ID                                        //  ident
+    |   expr_ '.' T_ID                                  //  Expr.ident
     //  TODO
 
 constant:   T_INT_LITERAL                               //  intConstant
     |       T_DOUBLE_LITERAL                            //  doubleConstant
     |       T_BOOLEAN_LITERAL                           //  boolConstant
     |       T_STRING_LITERAL                            //  stringConstant
-    |       T_NULL
+    |       T_NULL                                      //  null
     //  TODO
 %%
 
