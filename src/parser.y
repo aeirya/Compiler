@@ -70,9 +70,12 @@ function_decl:  type T_ID '(' formals ')' stmt_block    //  Type ident (Formals)
     |         T_VOID T_ID '(' formals ')' stmt_block    //  void ident (Formals) StmtBlock
 
 //  TODO: **Left-recursion?!**
-formals:/* epsilon */
-    |   formals ',' variable                            //  Variable+ ,
-    |   variable
+
+formals: /* epsilon */
+    |   formals_nonempty
+
+formals_nonempty: variable
+    |   formals_nonempty ',' variable                   //  Variable+ ,
 
 //  TODO: **Left-recursion?!**
 type:   T_INT                                           //  int
@@ -105,7 +108,6 @@ constant:   T_INT_LITERAL                               //  intConstant
     |       T_BOOLEAN_LITERAL                           //  boolConstant
     |       T_STRING_LITERAL                            //  stringConstant
     //  TODO
-
 %%
 
 int yyerror(string s)
