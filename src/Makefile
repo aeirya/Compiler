@@ -6,7 +6,7 @@ all: ../parser
 	g++ -o ../parser -std=c++14 parser.tab.c lex.yy.c main.cc
 
 parser.tab.c parser.tab.h: parser.y
-	bison -d parser.y
+	bison -d -t parser.y
 
 lex.yy.c: scanner.l
 	flex scanner.l
