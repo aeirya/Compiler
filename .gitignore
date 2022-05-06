@@ -30,14 +30,13 @@
 *.exe
 *.app
 lexer
+parser
 
 # Flex files
 src/lex.yy.*
 
 # Bison files
-src/*.tab.c
-src/*.tab.h
-src/*.output
+src/parser.tab.*
 
 # Output files
 out/
