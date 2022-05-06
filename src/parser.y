@@ -34,13 +34,13 @@
 %token T_CLASS
 %token T_PUBLIC
 %token T_PRIVATE
+%token T_THIS
+%token T_NULL
+%token T_RETURN
 
 %token T_OPERATOR
 %token T_OPERATOR_ASSIGN
 %token T_ARRAY
-
-%token T_THIS
-%token T_NULL
 
 %%
 
@@ -98,18 +98,30 @@ stmt_body:/* epsilon */
 stmt:   ';' |   expr ';'                                //  < Expr >;
     //  TODO
 
-expr:   l_value T_OPERATOR_ASSIGN expr                  //  LValue = Expr | LValue [+*/-]= Expr
+expr:   assignment                                      //  LValue = Expr
     |   constant                                        //  Constant
+    |   T_THIS                                          //  this
     //  TODO
 
+//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
+expr_: '(' expr ')'                                     //  (Expr)
+    | constant                                          //  Constant
+    | l_value                                           //  LValue
+    | T_THIS                                            //  this
+    //  TODO
+
+//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
+assignment: l_value '=' expr                            //  LValue = Expr
+
 l_value:    T_ID                                        //  ident
+    |   expr_ '.' T_ID                                  //  Expr.ident
     //  TODO
 
 constant:   T_INT_LITERAL                               //  intConstant
     |       T_DOUBLE_LITERAL                            //  doubleConstant
     |       T_BOOLEAN_LITERAL                           //  boolConstant
     |       T_STRING_LITERAL                            //  stringConstant
-    |       T_NULL
+    |       T_NULL                                      //  null
     //  TODO
 %%
 
