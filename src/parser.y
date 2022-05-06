@@ -77,7 +77,7 @@ formals: /* epsilon */
     |   formals_nonempty
 
 formals_nonempty: variable
-    |             formals_nonempty ',' variable                   //  Variable+ ,
+    |             formals_nonempty ',' variable         //  Variable+ ,
 
 //  TODO: **Left-recursion?!**
 type:   T_INT                                           //  int
@@ -101,27 +101,36 @@ stmt:   ';' |   expr ';'                                //  < Expr >;
     //  TODO
 
 return_stmt:    T_RETURN ';'                            //  return < Expr >;
-    |           T_RETURN expr_ ';'                      //  return < Expr >; [TODO: expr_ --> expr (without SR error)]
+    |           T_RETURN expr ';'                       //  return < Expr >;
 
 print_stmt:     T_PRINT '(' print_stmt_in ')' ';'       //  Print (Expr+ , );
 
-print_stmt_in:  expr_                                   //  [TODO: expr_ --> expr (without SR error)]
-    |           print_stmt_in ',' expr_                 //  [TODO: expr_ --> expr (without SR error)]
+print_stmt_in:  expr
+    |           print_stmt_in ',' expr
 
 expr:   assignment                                      //  LValue = Expr
+    |   expr_
+    //  TODO
+
+//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
+expr_:  '(' expr ')'                                    //  (Expr)
     |   constant                                        //  Constant
+    |   l_value                                         //  LValue
     |   T_THIS                                          //  this
+    |   call                                            //  Call
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
-expr_: '(' expr ')'                                     //  (Expr)
-    | constant                                          //  Constant
-    | l_value                                           //  LValue
-    | T_THIS                                            //  this
-    //  TODO
+assignment: l_value '=' expr                           //  LValue = Expr
 
-//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
-assignment: l_value '=' expr_                           //  LValue = Expr [TODO: expr_ --> expr (without SR error)]
+call:   T_ID '(' actuals ')'
+    |   expr_ '.' T_ID '(' actuals ')'
+
+actuals: /* epsilon */
+    |   actuals_nonempty
+
+actuals_nonempty:   expr_
+    |               actuals_nonempty ',' expr_
 
 l_value:    T_ID                                        //  ident
     |   expr_ '.' T_ID                                  //  Expr.ident
