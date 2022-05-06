@@ -59,6 +59,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     string  { return T_STRING; }
     bool    { return T_BOOLEAN; }
     class   { return T_CLASS; }
+    public  { return T_PUBLIC; }
+    private  { return T_PRIVATE; }
 
     true {
         yylval.boolval = true;

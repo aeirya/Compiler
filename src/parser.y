@@ -32,6 +32,8 @@
 %token T_STRING
 %token T_BOOLEAN
 %token T_CLASS
+%token T_PUBLIC
+%token T_PRIVATE
 
 %token T_OPERATOR
 %token T_ARRAY
