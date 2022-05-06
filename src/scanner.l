@@ -64,6 +64,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     null    { return T_NULL; }
     this    { return T_THIS; }
     return  { return T_RETURN; }
+    Print   { return T_PRINT; }
 
     true {
         yylval.boolval = true;
