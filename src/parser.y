@@ -45,7 +45,7 @@
 %%
 
 program: decl program                                   //  Decl+
-    |   { printf("OK"); }                               //  EOF
+    | /* epsilon */                                     //  EOF
     ;
     //  TODO
 
