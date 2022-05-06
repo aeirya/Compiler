@@ -7,7 +7,7 @@ int yyparse();
 
 int main(int argc, char **argv)
 { 
-    int x = yyparse();
+    yyparse();
     
     printf("OK\n");
 
