@@ -40,6 +40,7 @@
 %token T_RETURN
 %token T_PRINT
 %token T_NEW
+%token T_READ_LINE
 
 %token T_OPERATOR
 %token T_OPERATOR_ASSIGN
@@ -120,6 +121,7 @@ expr_:  '(' expr ')'                                    //  (Expr)
     |   l_value                                         //  LValue
     |   T_THIS                                          //  this
     |   call                                            //  Call
+    |   T_READ_LINE '(' ')'
     |   T_NEW T_ID                                      //  new ident
     //  TODO
 
