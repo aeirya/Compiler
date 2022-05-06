@@ -60,7 +60,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     bool    { return T_BOOLEAN; }
     class   { return T_CLASS; }
     public  { return T_PUBLIC; }
-    private  { return T_PRIVATE; }
+    private { return T_PRIVATE; }
+    null    { return T_NULL; }
 
     true {
         yylval.boolval = true;
@@ -79,6 +80,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     {OP_ASSIGN} {
         return T_OPERATOR_ASSIGN;
     }
+
     {OPERATOR} {
         // TODO: save operator in data type
         return T_OPERATOR;
