@@ -32,49 +32,82 @@
 %token T_STRING
 %token T_BOOLEAN
 %token T_CLASS
+%token T_PUBLIC
+%token T_PRIVATE
 
 %token T_OPERATOR
+%token T_OPERATOR_ASSIGN
 %token T_ARRAY
 
 
 %%
 
-program: decl program
-    |   { printf("OK"); }
+program: decl program                                   //  Decl+
+    |   { printf("OK"); }                               //  EOF
     ;
+    //  TODO
 
-decl:   function_decl
-    |   variable_decl
+decl:   variable_decl                                   //  VariableDecl
+    |   function_decl                                   //  FunctionDecl
+    |   class_decl                                      //  ClassDecl
 
-variable_decl:  variable ';'
+variable_decl:  variable ';'                            //  Variable;
 
-variable:   type T_ID
+class_decl:  T_CLASS T_ID '{' class_body '}'            //  class ident { Field* }
 
-function_decl:  type T_ID '(' formals ')' stmt_block
-    |         T_VOID T_ID '(' formals ')' stmt_block
+//  DESCRIPTION: class_body :==: Field*
+class_body:/* epsilon */                
+    |   access_mode variable_decl class_body            //  AccessMode VariableDecl
+    |   access_mode function_decl class_body            //  AccessMode FunctionDecl
+
+access_mode:/* epsilon */
+    |   T_PUBLIC                                        //  public
+    |   T_PRIVATE                                       //  private
+
+variable:   type T_ID                                   //  Type ident
+
+function_decl:  type T_ID '(' formals ')' stmt_block    //  Type ident (Formals) StmtBlock
+    |         T_VOID T_ID '(' formals ')' stmt_block    //  void ident (Formals) StmtBlock
+
+//  TODO: **Left-recursion?!**
 
 formals: /* epsilon */
     |   formals_nonempty
 
 formals_nonempty: variable
-    |   formals_nonempty ',' variable
+    |   formals_nonempty ',' variable                   //  Variable+ ,
 
-type:   T_INT
-    |   T_DOUBLE
-    |   T_STRING
-    |   T_BOOLEAN
+//  TODO: **Left-recursion?!**
+type:   T_INT                                           //  int
+    |   T_DOUBLE                                        //  double
+    |   T_BOOLEAN                                       //  bool
+    |   T_STRING                                        //  string
+    |   T_ID                                            //  ident
+    |   type '[' ']'                                    //  Type[]
 
-stmt_block: '{' stmt_block_in '}'
+stmt_block: '{' stmt_body '}'                           //  {VariableDecl∗ Stmt∗}
 
-stmt_block_in: /* epsilon */
-    |   variable_decl stmt_block_in
-    |   stmt_block_in_2
+//  DESCRIPTION: stmt_body :==: VariableDecl∗ Stmt∗
+//      A more powerfull version (order-agnostic)
+stmt_body:/* epsilon */
+    |   variable_decl stmt_body
+    |   stmt stmt_body
 
-stmt_block_in_2: /* epsilon */
-    |   stmt stmt_block_in_2
+stmt:   ';' |   expr ';'                                //  < Expr >;
+    //  TODO
 
-stmt: ';'
+expr:   l_value T_OPERATOR_ASSIGN expr                  //  LValue = Expr | LValue [+*/-]= Expr
+    |   constant                                        //  Constant
+    //  TODO
 
+l_value:    T_ID                                        //  ident
+    //  TODO
+
+constant:   T_INT_LITERAL                               //  intConstant
+    |       T_DOUBLE_LITERAL                            //  doubleConstant
+    |       T_BOOLEAN_LITERAL                           //  boolConstant
+    |       T_STRING_LITERAL                            //  stringConstant
+    //  TODO
 %%
 
 int yyerror(string s)
