@@ -121,16 +121,16 @@ expr_:  '(' expr ')'                                    //  (Expr)
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
-assignment: l_value '=' expr                           //  LValue = Expr
+assignment: l_value '=' expr                            //  LValue = Expr
 
-call:   T_ID '(' actuals ')'
-    |   expr_ '.' T_ID '(' actuals ')'
+call:   T_ID '(' actuals ')'                            //  ident(Actuals)
+    |   expr_ '.' T_ID '(' actuals ')'                  //  Expr.ident (Actuals) [TODO : expr_ --> exp without SR errors]
 
 actuals: /* epsilon */
     |   actuals_nonempty
 
-actuals_nonempty:   expr_
-    |               actuals_nonempty ',' expr_
+actuals_nonempty:   expr
+    |               actuals_nonempty ',' expr           //  Actuals+ ,
 
 l_value:    T_ID                                        //  ident
     |   expr_ '.' T_ID                                  //  Expr.ident
