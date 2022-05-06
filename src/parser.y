@@ -53,16 +53,27 @@ variable:   type T_ID
 function_decl:  type T_ID '(' formals ')' stmt_block
     |         T_VOID T_ID '(' formals ')' stmt_block
 
-formals:/* epsilon */
-    |   formals ',' variable
-    |   variable
+formals: /* epsilon */
+    |   formals_nonempty
+
+formals_nonempty: variable
+    |   formals_nonempty ',' variable
 
 type:   T_INT
     |   T_DOUBLE
     |   T_STRING
     |   T_BOOLEAN
 
-stmt_block: '{' /* TODO */ '}'
+stmt_block: '{' stmt_block_in '}'
+
+stmt_block_in: /* epsilon */
+    |   variable_decl stmt_block_in
+    |   stmt_block_in_2
+
+stmt_block_in_2: /* epsilon */
+    |   stmt stmt_block_in_2
+
+stmt: ';'
 
 %%
 
