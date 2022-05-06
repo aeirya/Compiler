@@ -96,7 +96,11 @@ stmt_body:/* epsilon */
     |   stmt stmt_body
 
 stmt:   ';' |   expr ';'                                //  < Expr >;
+    |   return_stmt                                     //  ReturnStmt
     //  TODO
+
+return_stmt:    T_RETURN ';'                            //  return < Expr >;
+    |           T_RETURN expr_ ';'                      //  TODO: expr_ --> expr (without SR error)
 
 expr:   assignment                                      //  LValue = Expr
     |   constant                                        //  Constant
