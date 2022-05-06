@@ -3,6 +3,7 @@
     // #include <string>
     #include <stdio.h>
     #include <iostream>
+    #define YYDEBUG 1
 
     using namespace std;
 
