@@ -37,6 +37,7 @@
 %token T_THIS
 %token T_NULL
 %token T_RETURN
+%token T_PRINT
 
 %token T_OPERATOR
 %token T_OPERATOR_ASSIGN
@@ -72,12 +73,11 @@ function_decl:  type T_ID '(' formals ')' stmt_block    //  Type ident (Formals)
     |         T_VOID T_ID '(' formals ')' stmt_block    //  void ident (Formals) StmtBlock
 
 //  TODO: **Left-recursion?!**
-
 formals: /* epsilon */
     |   formals_nonempty
 
 formals_nonempty: variable
-    |   formals_nonempty ',' variable                   //  Variable+ ,
+    |             formals_nonempty ',' variable                   //  Variable+ ,
 
 //  TODO: **Left-recursion?!**
 type:   T_INT                                           //  int
@@ -97,10 +97,16 @@ stmt_body:/* epsilon */
 
 stmt:   ';' |   expr ';'                                //  < Expr >;
     |   return_stmt                                     //  ReturnStmt
+    |   print_stmt                                      //  PrintStmt
     //  TODO
 
 return_stmt:    T_RETURN ';'                            //  return < Expr >;
     |           T_RETURN expr_ ';'                      //  return < Expr >; [TODO: expr_ --> expr (without SR error)]
+
+print_stmt:     T_PRINT '(' print_stmt_in ')' ';'       //  Print (Expr+ , );
+
+print_stmt_in:  expr_                                   //  [TODO: expr_ --> expr (without SR error)]
+    |           print_stmt_in ',' expr_                 //  [TODO: expr_ --> expr (without SR error)]
 
 expr:   assignment                                      //  LValue = Expr
     |   constant                                        //  Constant
