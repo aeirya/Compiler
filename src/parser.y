@@ -38,6 +38,7 @@
 %token T_NULL
 %token T_RETURN
 %token T_PRINT
+%token T_NEW
 
 %token T_OPERATOR
 %token T_OPERATOR_ASSIGN
@@ -118,6 +119,7 @@ expr_:  '(' expr ')'                                    //  (Expr)
     |   l_value                                         //  LValue
     |   T_THIS                                          //  this
     |   call                                            //  Call
+    |   T_NEW T_ID                                      //  new ident
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
