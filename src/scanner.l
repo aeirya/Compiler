@@ -76,6 +76,9 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         // TODO: write all    
     }
         
+    {OP_ASSIGN} {
+        return T_OPERATOR_ASSIGN;
+    }
     {OPERATOR} {
         // TODO: save operator in data type
         return T_OPERATOR;
