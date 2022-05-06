@@ -100,7 +100,7 @@ stmt:   ';' |   expr ';'                                //  < Expr >;
     //  TODO
 
 return_stmt:    T_RETURN ';'                            //  return < Expr >;
-    |           T_RETURN expr_ ';'                      //  TODO: expr_ --> expr (without SR error)
+    |           T_RETURN expr_ ';'                      //  return < Expr >; [TODO: expr_ --> expr (without SR error)]
 
 expr:   assignment                                      //  LValue = Expr
     |   constant                                        //  Constant
@@ -115,7 +115,7 @@ expr_: '(' expr ')'                                     //  (Expr)
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
-assignment: l_value '=' expr                            //  LValue = Expr
+assignment: l_value '=' expr_                           //  LValue = Expr [TODO: expr_ --> expr (without SR error)]
 
 l_value:    T_ID                                        //  ident
     |   expr_ '.' T_ID                                  //  Expr.ident
