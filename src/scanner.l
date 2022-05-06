@@ -62,6 +62,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     public  { return T_PUBLIC; }
     private { return T_PRIVATE; }
     null    { return T_NULL; }
+    this    { return T_THIS; }
+    return  { return T_RETURN; }
 
     true {
         yylval.boolval = true;
@@ -77,6 +79,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         // TODO: write all    
     }
         
+    = { return '='; }
+
     {OP_ASSIGN} {
         return T_OPERATOR_ASSIGN;
     }
