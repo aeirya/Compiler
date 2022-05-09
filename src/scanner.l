@@ -67,7 +67,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     Print   { return T_PRINT; }
     new     { return T_NEW; }
     ReadLine { return T_READ_LINE;}
-    Extends { return T_EXTENDS; }
+    extends { return T_EXTENDS; }
 
     true {
         yylval.boolval = true;
