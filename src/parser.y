@@ -204,8 +204,12 @@ int yyerror(string s)
     extern int yylineno;	// defined and maintained in lex.c
     extern char *yytext;	// defined and maintained in lex.c
     
-    cerr << "ERROR: " << s << " at symbol \"" << yytext;
-    cerr << "\" on line " << yylineno << endl;
+    #if YYDEBUG
+        cerr << "ERROR: " << s << " at symbol \"" << yytext;
+        cerr << "\" on line " << yylineno << endl;
+    #else
+        cout << "Syntax Error";
+    #endif
     exit(1);
 }
 
