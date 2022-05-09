@@ -66,7 +66,7 @@ variable_decl:
 
 class_decl:
         T_CLASS T_ID '{' class_body '}'                 //  class ident { Field* }
-        T_CLASS T_ID T_EXTENDS T_ID '{' class_body '}'  //  class ident Extends ident { Field* } [TODO: Not sure, nothing in doc]
+    |   T_CLASS T_ID T_EXTENDS T_ID '{' class_body '}'  //  class ident Extends ident { Field* } [TODO: Not sure, nothing in doc]
 
 //  DESCRIPTION: class_body :==: Field*
 class_body:
