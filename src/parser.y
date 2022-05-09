@@ -9,6 +9,7 @@
 
     int yyerror(char *s);
     int yylex(void);
+    #define TRACE printf("reduce at line %d\n", __LINE__);
 %}
 
 %union {
