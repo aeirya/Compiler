@@ -85,6 +85,10 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         
     = { return '='; }
 
+    {OP_ARITHMETIC} {
+        return yytext[0];
+    }
+
     {OP_ASSIGN} {
         return T_OPERATOR_ASSIGN;
     }

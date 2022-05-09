@@ -129,10 +129,34 @@ print_stmt_in:
         expr
     |   print_stmt_in ',' expr
 
+//  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
 expr:
         assignment                                      //  LValue = Expr
+    |   expr_plus
+
+expr_plus:
+        expr_plus '+' expr_minus                        //  Expr + Expr
+    |   expr_minus
+
+expr_minus:
+        expr_minus '-' expr_mult                        //  Expr - Expr
+    |   expr_mult
+
+expr_mult:
+        expr_mult '*' expr_div                          //  Expr * Expr
+    |   expr_div
+
+expr_div:
+        expr_div '/' expr_neg                           //  Expr / Expr
+    |   expr_neg
+
+expr_neg:
+        '-' expr_not                                    //  - Expr
+    |   expr_not
+
+expr_not:
+        '!' expr_                                       //  ! Expr
     |   expr_
-    //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
 expr_:
