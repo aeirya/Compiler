@@ -37,6 +37,7 @@ src/lex.yy.*
 
 # Bison files
 src/parser.tab.*
+src/parser.output
 
 # Output files
 out/

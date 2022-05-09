@@ -6,10 +6,10 @@ all: ../parser
 	g++ -o ../parser -std=c++14 parser.tab.c lex.yy.c main.cc
 
 parser.tab.c parser.tab.h: parser.y
-	bison -d -t parser.y
+	bison -d -t -v parser.y
 
 lex.yy.c: scanner.l
 	flex scanner.l
 
 clean:
-	rm ../parser lex.yy.c parser.tab.c parser.tab.h
+	rm ../parser lex.yy.c parser.tab.c parser.tab.h parser.output
