@@ -68,6 +68,12 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     break   { return T_BREAK; }
     continue {return T_CONTINUE; }
 
+    btoi    { return T_BTOI; }
+    dtoi    { return T_DTOI; }
+    itob    { return T_ITOB; }
+    itod    { return T_ITOD; }
+    __line__ { return T_LINE; }
+    __func__ { return T_FUNC; }
     NewArray { return T_NEW_ARRAY; }
     Print   { return T_PRINT; }
     ReadInteger { return T_READ_INTEGER; }

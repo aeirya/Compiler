@@ -3,7 +3,7 @@
     // #include <string>
     #include <stdio.h>
     #include <iostream>
-    #define YYDEBUG 1
+    #define YYDEBUG 0
 
     using namespace std;
 
@@ -46,6 +46,12 @@
 %token T_BREAK
 %token T_CONTINUE
 
+%token T_BTOI
+%token T_DTOI
+%token T_ITOB
+%token T_ITOD
+%token T_LINE
+%token T_FUNC
 %token T_NEW_ARRAY
 %token T_PRINT
 %token T_READ_LINE
@@ -231,6 +237,12 @@ expr_:
     |   T_READ_INTEGER '(' ')'                          //  ReadInteger
     |   T_NEW T_ID                                      //  new ident
     |   T_NEW_ARRAY '(' expr ',' type ')'               //  NewArray(Expr, Type)
+    |   T_ITOD '(' expr ')'                             //  itod(Expr)
+    |   T_ITOB '(' expr ')'                             //  itob(Expr)
+    |   T_DTOI '(' expr ')'                             //  dtoi(Expr)
+    |   T_BTOI '(' expr ')'                             //  btoi(Expr)
+    |   T_LINE                                          //  __line__
+    |   T_FUNC                                          //  __func__
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
