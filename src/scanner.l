@@ -82,20 +82,24 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     {RSERVED_KEYWORD} {
         // TODO: write all    
     }
-        
-    = { return '='; }
+
+    {OP_LOGIC} {
+        yylval.strval = yytext;
+        return T_OP_LOGIC;
+    }
 
     {OP_ARITHMETIC} {
         return yytext[0];
     }
 
-    {OP_ASSIGN} {
-        return T_OPERATOR_ASSIGN;
+    {OP_COMPARISON} {
+        yylval.strval = yytext;
+        return T_OP_COMPARISON;
     }
 
-    {OPERATOR} {
-        // TODO: save operator in data type
-        return T_OPERATOR;
+    {OP_ASSIGN} {
+        yylval.strval = yytext;
+        return T_OP_ASSIGN;
     }
 
     {INTEGER} {

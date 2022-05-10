@@ -26,6 +26,9 @@
 %token <intval>     T_INT_LITERAL
 %token <doubleval>  T_DOUBLE_LITERAL
 %token <strval>     T_STRING_LITERAL
+%token <strval>     T_OP_LOGIC
+%token <strval>     T_OP_COMPARISON
+%token <strval>     T_OP_ASSIGN
 %token <boolval>    T_BOOLEAN_LITERAL
 
 %token T_VOID
@@ -44,8 +47,6 @@
 %token T_READ_LINE
 %token T_EXTENDS
 
-%token T_OPERATOR
-%token T_OPERATOR_ASSIGN
 %token T_ARRAY
 
 %%
@@ -132,6 +133,14 @@ print_stmt_in:
 //  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
 expr:
         assignment                                      //  LValue = Expr
+    |   expr_op_logic
+
+expr_op_logic:
+        expr_op_logic T_OP_LOGIC expr_op_comp           //  Expr [&&|(||)] Expr
+    |   expr_op_comp
+
+expr_op_comp:
+        expr_op_comp T_OP_COMPARISON expr_plus          //  Expr [<|<=|>|>=|!=|==] Expr
     |   expr_plus
 
 expr_plus:
@@ -139,7 +148,11 @@ expr_plus:
     |   expr_minus
 
 expr_minus:
-        expr_minus '-' expr_mult                        //  Expr - Expr
+        expr_minus '-' expr_mod                         //  Expr - Expr
+    |   expr_mod
+
+expr_mod:
+        expr_mod '%' expr_mult                          //  Exprt % Expr
     |   expr_mult
 
 expr_mult:
@@ -171,7 +184,7 @@ expr_:
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
 assignment:
-        l_value '=' expr                                //  LValue = Expr
+        l_value T_OP_ASSIGN expr                        //  LValue = Expr
 
 call:
         T_ID '(' actuals ')'                            //  ident(Actuals)
