@@ -115,3 +115,7 @@ do
 
 
 done
+
+echo "[Phase 2]: Parser Completed:"
+echo "Passed : $NUMBER_OF_PASSED"
+echo "Failed : $NUMBER_OF_FAILED"
