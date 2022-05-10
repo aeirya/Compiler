@@ -43,6 +43,7 @@
 
 %token T_PRINT
 %token T_READ_LINE
+%token T_READ_INTEGER
 
 %token T_NULL
 %token T_THIS
@@ -189,7 +190,8 @@ expr_:
     |   l_value                                         //  LValue
     |   T_THIS                                          //  this
     |   call                                            //  Call
-    |   T_READ_LINE '(' ')'
+    |   T_READ_LINE '(' ')'                             //  ReadLine ? readLine
+    |   T_READ_INTEGER '(' ')'                          //  ReadInteger
     |   T_NEW T_ID                                      //  new ident
     //  TODO
 
