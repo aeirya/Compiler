@@ -65,6 +65,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     if      { return T_IF; }
     else    { return T_ELSE; }
     return  { return T_RETURN; }
+    break   { return T_BREAK; }
+    continue {return T_CONTINUE; }
 
     NewArray { return T_NEW_ARRAY; }
     Print   { return T_PRINT; }

@@ -43,6 +43,8 @@
 %token T_IF
 %token T_ELSE
 %token T_RETURN
+%token T_BREAK
+%token T_CONTINUE
 
 %token T_NEW_ARRAY
 %token T_PRINT
@@ -137,6 +139,8 @@ stmt:
     |   while_stmt                                      //  WhileStmt
     |   for_stmt                                        //  ForStmt
     |   if_stmt                                         //  IfStmt
+    |   break_stmt                                      //  BreakStmt
+    |   continue_stmt                                   //  ContinueStmt
     //  TODO
 
 return_stmt:    
@@ -160,6 +164,12 @@ for_stmt:                                               //  for (< Expr >; Expr;
 if_stmt:                                                //  if (Expr) Stmt < else Stmt >
         T_IF '(' expr ')' stmt_block_optional %prec THEN
     |   T_IF '(' expr ')' stmt_block_optional T_ELSE stmt_block_optional
+
+break_stmt:
+        T_BREAK ';'                                     //  break;
+
+continue_stmt:
+        T_CONTINUE ';'                                  //  continue;
 
 //  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
 expr_optional:                                          //  < Expr >
