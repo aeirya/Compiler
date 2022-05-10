@@ -128,6 +128,7 @@ stmt_body:
         /* epsilon */
     |   variable_decl stmt_body
     |   stmt stmt_body
+    |   stmt_block
 
 stmt:   
         ';' |   expr ';'                                //  < Expr >;
