@@ -156,9 +156,10 @@ for_stmt:                                               //  for (< Expr >; Expr;
         T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt_block_optional
 
 //  Solving if S/R using [https://stackoverflow.com/questions/12731922/reforming-the-grammar-to-remove-shift-reduce-conflict-in-if-then-else]
+//      Probable [Error in documents] here in Stmt declaration
 if_stmt:                                                //  if (Expr) Stmt < else Stmt >
-        T_IF '(' expr ')' stmt %prec THEN               //  if (Expr) Stmt
-    |   T_IF '(' expr ')' stmt T_ELSE stmt              //  if (Expr) Stmt else Stmt
+        T_IF '(' expr ')' stmt_block_optional %prec THEN
+    |   T_IF '(' expr ')' stmt_block_optional T_ELSE stmt_block_optional
 
 //  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
 expr_optional:                                          //  < Expr >
