@@ -121,6 +121,7 @@ stmt:
         ';' |   expr ';'                                //  < Expr >;
     |   return_stmt                                     //  ReturnStmt
     |   print_stmt                                      //  PrintStmt
+    |   for_stmt                                        //  ForStmt
     //  TODO
 
 return_stmt:    
@@ -132,6 +133,9 @@ print_stmt:
 print_stmt_in:
         expr
     |   print_stmt_in ',' expr
+
+for_stmt:                                               //  for (< Expr >; Expr; < Expr >) Stmt
+    T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt
 
 //  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
 expr_optional:                                          //  < Expr >
