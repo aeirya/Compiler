@@ -130,7 +130,7 @@ stmt_body:
         /* epsilon */
     |   variable_decl stmt_body
     |   stmt stmt_body
-    |   stmt_block
+    |   stmt_block stmt_body
 
 stmt:   
         ';' |   expr ';'                                //  < Expr >;
