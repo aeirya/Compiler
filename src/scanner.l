@@ -24,7 +24,7 @@ SCI_FLOAT       {FLOAT}((e|E)(\+|-)?{INTEGER})
 ID              [A-Za-z_][A-Za-z0-9_]*
 STRING          \"([^\"]|(\\\"))*\"
 SYMBOL          [\{\}\(\)\;\[\],-\.%\\!]
-ARRAY_SYMBOL    (\[\])
+ARRAY_SYMBOL    (\[[ \t\n]*\])
 
 OP_LOGIC        &&|(\|\|)
 OP_ARITHMETIC   \+|-|\*|\/
