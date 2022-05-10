@@ -39,6 +39,7 @@
 %token T_CLASS
 
 %token T_FOR
+%token T_WHILE
 %token T_IF
 %token T_ELSE
 %token T_RETURN
@@ -131,6 +132,7 @@ stmt:
         ';' |   expr ';'                                //  < Expr >;
     |   return_stmt                                     //  ReturnStmt
     |   print_stmt                                      //  PrintStmt
+    |   while_stmt                                      //  WhileStmt
     |   for_stmt                                        //  ForStmt
     |   if_stmt                                         //  IfStmt
     //  TODO
@@ -144,6 +146,9 @@ print_stmt:
 print_stmt_in:
         expr
     |   print_stmt_in ',' expr
+
+while_stmt:
+        T_WHILE '(' expr ')' stmt_block_optional
 
 for_stmt:                                               //  for (< Expr >; Expr; < Expr >) Stmt
         T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt_block_optional
