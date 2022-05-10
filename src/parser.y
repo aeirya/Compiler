@@ -34,17 +34,21 @@
 %token T_VOID
 %token T_INT
 %token T_DOUBLE
-%token T_STRING
 %token T_BOOLEAN
+%token T_STRING
 %token T_CLASS
-%token T_PUBLIC
-%token T_PRIVATE
-%token T_THIS
-%token T_NULL
+
+%token T_FOR
 %token T_RETURN
+
 %token T_PRINT
-%token T_NEW
 %token T_READ_LINE
+
+%token T_NULL
+%token T_THIS
+%token T_NEW
+%token T_PRIVATE
+%token T_PUBLIC
 %token T_EXTENDS
 
 %token T_ARRAY
