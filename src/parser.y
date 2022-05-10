@@ -249,7 +249,7 @@ expr_:
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
 assignment:
-        l_value T_OP_ASSIGN expr                        //  LValue = Expr
+        l_value T_OP_ASSIGN expr                        //  LValue [ */+-]= Expr
 
 call:
         T_ID '(' actuals ')'                            //  ident(Actuals)
