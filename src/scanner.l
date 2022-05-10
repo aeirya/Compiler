@@ -61,6 +61,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     class   { return T_CLASS; }
 
     for     { return T_FOR; }
+    if      { return T_IF; }
+    else    { return T_ELSE; }
     return  { return T_RETURN; }
 
     Print   { return T_PRINT; }

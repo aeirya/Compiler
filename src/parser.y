@@ -39,6 +39,8 @@
 %token T_CLASS
 
 %token T_FOR
+%token T_IF
+%token T_ELSE
 %token T_RETURN
 
 %token T_PRINT
@@ -54,6 +56,8 @@
 
 %token T_ARRAY
 
+%precedence THEN
+%precedence T_ELSE
 %%
 
 program: 
@@ -123,6 +127,7 @@ stmt:
     |   return_stmt                                     //  ReturnStmt
     |   print_stmt                                      //  PrintStmt
     |   for_stmt                                        //  ForStmt
+    |   if_stmt                                         //  IfStmt
     //  TODO
 
 return_stmt:    
@@ -136,7 +141,12 @@ print_stmt_in:
     |   print_stmt_in ',' expr
 
 for_stmt:                                               //  for (< Expr >; Expr; < Expr >) Stmt
-    T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt
+        T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt
+
+//  Solving if S/R using [https://stackoverflow.com/questions/12731922/reforming-the-grammar-to-remove-shift-reduce-conflict-in-if-then-else]
+if_stmt:                                                //  if (Expr) Stmt < else Stmt >
+        T_IF '(' expr ')' stmt %prec THEN               //  if (Expr) Stmt
+    |   T_IF '(' expr ')' stmt T_ELSE stmt              //  if (Expr) Stmt else Stmt
 
 //  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
 expr_optional:                                          //  < Expr >
