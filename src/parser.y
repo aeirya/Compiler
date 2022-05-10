@@ -214,7 +214,7 @@ expr_:
     |   T_READ_LINE '(' ')'                             //  ReadLine ? readLine
     |   T_READ_INTEGER '(' ')'                          //  ReadInteger
     |   T_NEW T_ID                                      //  new ident
-    |   T_NEW_ARRAY '(' expr ',' type ')'               //  NewArray(Expr, T ype)
+    |   T_NEW_ARRAY '(' expr ',' type ')'               //  NewArray(Expr, Type)
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
@@ -235,7 +235,8 @@ actuals_nonempty:
 
 l_value:
         T_ID                                            //  ident
-    |   expr_ '.' T_ID                                  //  Expr.ident
+    |   expr_ '.' T_ID                                  //  Expr.ident  [Error in documents]
+    |   expr_ '[' expr ']'                              //  Expr[Expr]  [Error in documents]
     //  TODO
 
 constant:
