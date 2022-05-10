@@ -64,6 +64,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     return  { return T_RETURN; }
 
     Print   { return T_PRINT; }
+    ReadInteger { return T_READ_INTEGER; }
     ReadLine { return T_READ_LINE;}
 
     null    { return T_NULL; }
