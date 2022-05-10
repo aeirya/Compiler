@@ -3,7 +3,7 @@
     // #include <string>
     #include <stdio.h>
     #include <iostream>
-    #define YYDEBUG 1
+    #define YYDEBUG 0
 
     using namespace std;
 
@@ -59,6 +59,7 @@
 
 %token T_NULL
 %token T_THIS
+%token T_IMPORT
 %token T_NEW
 %token T_PRIVATE
 %token T_PUBLIC
@@ -71,7 +72,8 @@
 %%
 
 program: 
-        decl main_program                               //  Decl+
+        T_IMPORT T_STRING_LITERAL program               //  import stringConstant 
+    |   decl main_program                               //  Decl+
     ;
 
 //  [Error in documents - possible] Decl+ is nonesense

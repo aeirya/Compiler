@@ -81,6 +81,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
 
     null    { return T_NULL; }
     this    { return T_THIS; }
+    import  { return T_IMPORT; }
     new     { return T_NEW; }
     private { return T_PRIVATE; }
     public  { return T_PUBLIC; }
