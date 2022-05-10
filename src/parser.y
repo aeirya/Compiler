@@ -65,9 +65,13 @@
 %%
 
 program: 
-        decl program                                    //  Decl+
-    | /* epsilon */                                     //  EOF
+        decl main_program                               //  Decl+
     ;
+
+//  [Error in documents - possible] Decl+ is nonesense
+main_program:
+        decl main_program
+    |   /* epsilon */                                   //  EOF
     //  TODO
 
 decl:
