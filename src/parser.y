@@ -44,6 +44,7 @@
 %token T_ELSE
 %token T_RETURN
 
+%token T_NEW_ARRAY
 %token T_PRINT
 %token T_READ_LINE
 %token T_READ_INTEGER
@@ -213,6 +214,7 @@ expr_:
     |   T_READ_LINE '(' ')'                             //  ReadLine ? readLine
     |   T_READ_INTEGER '(' ')'                          //  ReadInteger
     |   T_NEW T_ID                                      //  new ident
+    |   T_NEW_ARRAY '(' expr ',' type ')'               //  NewArray(Expr, T ype)
     //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)

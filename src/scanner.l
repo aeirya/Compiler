@@ -66,6 +66,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     else    { return T_ELSE; }
     return  { return T_RETURN; }
 
+    NewArray { return T_NEW_ARRAY; }
     Print   { return T_PRINT; }
     ReadInteger { return T_READ_INTEGER; }
     ReadLine { return T_READ_LINE;}
