@@ -225,7 +225,7 @@ expr_neg:
     |   expr_not
 
 expr_not:
-        '!' expr_                                       //  ! Expr
+        '!' expr_not                                    //  ! Expr  [Error in documents - possible]
     |   expr_
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
