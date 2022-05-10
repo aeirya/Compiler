@@ -124,8 +124,7 @@ stmt:
     //  TODO
 
 return_stmt:    
-        T_RETURN ';'                                    //  return < Expr >;
-    |   T_RETURN expr ';'                               //  return < Expr >;
+        T_RETURN expr_optional ';'                      //  return < Expr >;
 
 print_stmt:
         T_PRINT '(' print_stmt_in ')' ';'               //  Print (Expr+ , );
@@ -135,6 +134,10 @@ print_stmt_in:
     |   print_stmt_in ',' expr
 
 //  Expression Part (Rules would add in revrese order - b.c bottom-up parsing):
+expr_optional:                                          //  < Expr >
+        /* epsilon */
+    |   expr
+
 expr:
         assignment                                      //  LValue = Expr
     |   expr_op_logic
