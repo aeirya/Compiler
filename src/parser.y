@@ -198,7 +198,7 @@ expr_div:
     |   expr_neg
 
 expr_neg:
-        '-' expr_not                                    //  - Expr
+        '-' expr_neg                                    //  - Expr  [Error in documents - possible]
     |   expr_not
 
 expr_not:
