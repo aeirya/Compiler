@@ -35,7 +35,7 @@ OPERATOR        {OP_LOGIC}|{OP_ARITHMETIC}|{OP_COMPARISON}|{OP_ASSIGN}
 RK_TYPE         void|int|double|bool|string|class
 RK_FLOW_CONTROL for|while|if|else|return|break|continue
 RK_FUNCTIONS    btoi|dtoi|itob|itod|__line__|__func__|NewArray|Print|ReadInteger|ReadLine
-RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public|define
+RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public|define|extends
 
 %x IN_MULTILINE_COMMENT
 %x IN_ONELINE_COMMENT
@@ -56,17 +56,21 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     void    { return T_VOID; }
     int     { return T_INT; }
     double  { return T_DOUBLE; }
-    string  { return T_STRING; }
     bool    { return T_BOOLEAN; }
+    string  { return T_STRING; }
     class   { return T_CLASS; }
-    public  { return T_PUBLIC; }
-    private { return T_PRIVATE; }
+
+    for     { return T_FOR; }
+    return  { return T_RETURN; }
+
+    Print   { return T_PRINT; }
+    ReadLine { return T_READ_LINE;}
+
     null    { return T_NULL; }
     this    { return T_THIS; }
-    return  { return T_RETURN; }
-    Print   { return T_PRINT; }
     new     { return T_NEW; }
-    ReadLine { return T_READ_LINE;}
+    private { return T_PRIVATE; }
+    public  { return T_PUBLIC; }
     extends { return T_EXTENDS; }
 
     true {
