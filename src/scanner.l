@@ -24,7 +24,7 @@ SCI_FLOAT       {FLOAT}((e|E)(\+|-)?{INTEGER})
 ID              [A-Za-z_][A-Za-z0-9_]*
 STRING          \"([^\"]|(\\\"))*\"
 SYMBOL          [\{\}\(\)\;\[\],-\.%\\!]
-ARRAY_SYMBOL    (\[\])
+ARRAY_SYMBOL    (\[[ \t\n]*\])
 
 OP_LOGIC        &&|(\|\|)
 OP_ARITHMETIC   \+|-|\*|\/
@@ -35,7 +35,7 @@ OPERATOR        {OP_LOGIC}|{OP_ARITHMETIC}|{OP_COMPARISON}|{OP_ASSIGN}
 RK_TYPE         void|int|double|bool|string|class
 RK_FLOW_CONTROL for|while|if|else|return|break|continue
 RK_FUNCTIONS    btoi|dtoi|itob|itod|__line__|__func__|NewArray|Print|ReadInteger|ReadLine
-RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public|define
+RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public|define|extends
 
 %x IN_MULTILINE_COMMENT
 %x IN_ONELINE_COMMENT
@@ -56,17 +56,36 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     void    { return T_VOID; }
     int     { return T_INT; }
     double  { return T_DOUBLE; }
-    string  { return T_STRING; }
     bool    { return T_BOOLEAN; }
+    string  { return T_STRING; }
     class   { return T_CLASS; }
-    public  { return T_PUBLIC; }
-    private { return T_PRIVATE; }
+
+    for     { return T_FOR; }
+    while   { return T_WHILE; }
+    if      { return T_IF; }
+    else    { return T_ELSE; }
+    return  { return T_RETURN; }
+    break   { return T_BREAK; }
+    continue {return T_CONTINUE; }
+
+    btoi    { return T_BTOI; }
+    dtoi    { return T_DTOI; }
+    itob    { return T_ITOB; }
+    itod    { return T_ITOD; }
+    __line__ { return T_LINE; }
+    __func__ { return T_FUNC; }
+    NewArray { return T_NEW_ARRAY; }
+    Print   { return T_PRINT; }
+    ReadInteger { return T_READ_INTEGER; }
+    ReadLine { return T_READ_LINE;}
+
     null    { return T_NULL; }
     this    { return T_THIS; }
-    return  { return T_RETURN; }
-    Print   { return T_PRINT; }
+    import  { return T_IMPORT; }
     new     { return T_NEW; }
-    ReadLine { return T_READ_LINE;}
+    private { return T_PRIVATE; }
+    public  { return T_PUBLIC; }
+    extends { return T_EXTENDS; }
 
     true {
         yylval.boolval = true;
@@ -81,16 +100,24 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     {RSERVED_KEYWORD} {
         // TODO: write all    
     }
-        
-    = { return '='; }
 
-    {OP_ASSIGN} {
-        return T_OPERATOR_ASSIGN;
+    {OP_LOGIC} {
+        yylval.strval = yytext;
+        return T_OP_LOGIC;
     }
 
-    {OPERATOR} {
-        // TODO: save operator in data type
-        return T_OPERATOR;
+    {OP_ARITHMETIC} {
+        return yytext[0];
+    }
+
+    {OP_COMPARISON} {
+        yylval.strval = yytext;
+        return T_OP_COMPARISON;
+    }
+
+    {OP_ASSIGN} {
+        yylval.strval = yytext;
+        return T_OP_ASSIGN;
     }
 
     {INTEGER} {

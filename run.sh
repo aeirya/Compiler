@@ -96,26 +96,26 @@ do
         cd ..
         echo "Code compiled successfuly"
         ./parser < $TEST_DIR$filelist > $OUT_DIR$output_filename
-        if [ $? -eq 0 ]; then
-            echo "Code Executed Successfuly!"
-            if command -v python3 > /dev/null; then
-                python3 comp.py -a "$OUT_DIR$output_filename" -b "$TEST_DIR$output_filename" -o "$REP_DIR$report_filename"
-            else
-                python comp.py -a "$OUT_DIR$output_filename" -b "$TEST_DIR$output_filename" -o "$REP_DIR$report_filename"
-            fi
-            if [[ $? = 0 ]]; then
-                ((NUMBER_OF_PASSED++))
-                echo "++++ test passed"
-            else
-                ((NUMBER_OF_FAILED++))
-                echo "---- test failed !"
-            echo
-            fi 
+        echo "Code Executed Successfuly!"
+        if command -v python3 > /dev/null; then
+            python3 comp.py -a "$OUT_DIR$output_filename" -b "$TEST_DIR$output_filename" -o "$REP_DIR$report_filename"
         else
-            echo "Code did not execute successfuly!"
+            python comp.py -a "$OUT_DIR$output_filename" -b "$TEST_DIR$output_filename" -o "$REP_DIR$report_filename"
+        fi
+        if [[ $? = 0 ]]; then
+            ((NUMBER_OF_PASSED++))
+            echo "++++ test passed"
+        else
             ((NUMBER_OF_FAILED++))
+            echo "---- test failed !"
+            exit
+        echo
         fi
     fi
 
 
 done
+
+echo "[Phase 2]: Parser Completed:"
+echo "Passed : $NUMBER_OF_PASSED"
+echo "Failed : $NUMBER_OF_FAILED"
