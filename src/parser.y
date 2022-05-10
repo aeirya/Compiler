@@ -112,6 +112,11 @@ type:
     |   T_ID                                            //  ident
     |   type T_ARRAY                                    //  Type[]
 
+//  DESCRIPTION: bug in documents, this is the right way
+stmt_block_optional:
+        stmt_block
+    |   stmt
+
 stmt_block:
         '{' stmt_body '}'                               //  {VariableDecl∗ Stmt∗}
 
@@ -141,7 +146,7 @@ print_stmt_in:
     |   print_stmt_in ',' expr
 
 for_stmt:                                               //  for (< Expr >; Expr; < Expr >) Stmt
-        T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt
+        T_FOR '(' expr_optional ';' expr ';' expr_optional ')' stmt_block_optional
 
 //  Solving if S/R using [https://stackoverflow.com/questions/12731922/reforming-the-grammar-to-remove-shift-reduce-conflict-in-if-then-else]
 if_stmt:                                                //  if (Expr) Stmt < else Stmt >
