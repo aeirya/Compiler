@@ -67,8 +67,8 @@
 
 %token T_ARRAY
 
-%precedence THEN
-%precedence T_ELSE
+%nonassoc THEN
+%nonassoc T_ELSE
 %%
 
 program: 
