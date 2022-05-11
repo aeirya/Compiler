@@ -58,7 +58,9 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     double  { return T_DOUBLE; }
     bool    { return T_BOOLEAN; }
     string  { return T_STRING; }
+    
     class   { return T_CLASS; }
+    interface { return T_INTERFACE; }
 
     for     { return T_FOR; }
     while   { return T_WHILE; }

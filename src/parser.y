@@ -36,7 +36,9 @@
 %token T_DOUBLE
 %token T_BOOLEAN
 %token T_STRING
+
 %token T_CLASS
+%token T_INTERFACE
 
 %token T_FOR
 %token T_WHILE
@@ -86,6 +88,7 @@ decl:
         variable_decl                                   //  VariableDecl
     |   function_decl                                   //  FunctionDecl
     |   class_decl                                      //  ClassDecl
+    |   interface_decl                                  //  IntefaceDecl
 
 variable_decl:
         variable ';'                                    //  Variable;
@@ -104,6 +107,14 @@ access_mode:
         /* epsilon */
     |   T_PUBLIC                                        //  public
     |   T_PRIVATE                                       //  private
+
+interface_decl:
+    T_INTERFACE T_ID '{' prototype '}'
+
+prototype:
+        /* epsilon */
+    |   type T_ID '(' formals ')' ';' prototype         // Type ident (Formals);
+    |   T_VOID T_ID '(' formals ')' ';' prototype       // void ident (Formals);
 
 variable:
         type T_ID                                       //  Type ident
