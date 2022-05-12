@@ -183,5 +183,3 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     "\n"    BEGIN(INITIAL);
     .       ;
 }
-
-
