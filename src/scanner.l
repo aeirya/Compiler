@@ -1,8 +1,11 @@
 %option noyywrap
 %option yylineno
-%option header-file="lex.yy.h"
+/* %option header-file="lex.yy.h" */
 
 %{
+
+#include <string>
+
 /*
     references:
 
@@ -10,60 +13,7 @@
     http://westes.github.io/flex/manual/Multiple-Input-Buffers.html
 */
 
-#define YY_DECL int yylex()
-
-#include <string>
-#include <map>
-
-using std::string;
-using std::map;
-using std::pair;
-
-
-/*
-    definitions and utilities for define functionality
-*/
-#pragma region define
-
-#define DEF_ID_SIZE 100
-bool id_flag = false;
-char def_id[DEF_ID_SIZE];
-
-#define DEF_BODY_SIZE 350
-char def_body[DEF_BODY_SIZE];
-int dbp = 0;  /* def body pointer */
-
-bool dmap_flag = false; /* dmap read mode flag */
-/*
-    maps id -> code to be replaced
-    everything "define"ed will be stored here
-*/
-map<string, string> dmap;
-
-inline bool is_macro(char* id) 
-{
-    map<string, string>::const_iterator it;
-    return !((it = dmap.find(id)) == dmap.end());
-}
-
-inline string get_macro(char *id) 
-{
-    map<string, string>::const_iterator it;
-    return dmap.find(id)->second;
-}
-
-#pragma endregion define
-
-
-#include "tokens.h"
-
-/*  TOKEN: token name   
-    yytext: token lexeme    */
-#define PRINT_TOKEN(TOKEN) fprintf(yyout, "%s %s\n", token_to_str(TOKEN), yytext); 
-
-#define PRINT_NEWLINE fprintf(yyout, "\n")
-
-YY_BUFFER_STATE main_buf_state;
+#include "parser.tab.h"
 
 %}
 
@@ -73,7 +23,8 @@ FLOAT           [0-9]+\.[0-9]*
 SCI_FLOAT       {FLOAT}((e|E)(\+|-)?{INTEGER})
 ID              [A-Za-z_][A-Za-z0-9_]*
 STRING          \"([^\"]|(\\\"))*\"
-SYMBOL          [\{\}\(\)\;\[\],-\.%\\!(\[\])]
+SYMBOL          [\{\}\(\)\;\[\],-\.%\\!]
+ARRAY_SYMBOL    (\[[ \t\n]*\])
 
 OP_LOGIC        &&|(\|\|)
 OP_ARITHMETIC   \+|-|\*|\/
@@ -84,11 +35,10 @@ OPERATOR        {OP_LOGIC}|{OP_ARITHMETIC}|{OP_COMPARISON}|{OP_ASSIGN}
 RK_TYPE         void|int|double|bool|string|class
 RK_FLOW_CONTROL for|while|if|else|return|break|continue
 RK_FUNCTIONS    btoi|dtoi|itob|itod|__line__|__func__|NewArray|Print|ReadInteger|ReadLine
-RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public
+RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public|define|extends
 
 %x IN_MULTILINE_COMMENT
 %x IN_ONELINE_COMMENT
-%x IN_DEFINE
 
 %%
 
@@ -103,46 +53,111 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
         BEGIN(IN_ONELINE_COMMENT);
     }
 
-    define {
-        BEGIN(IN_DEFINE);
+    void    { return T_VOID; }
+    int     { return T_INT; }
+    double  { return T_DOUBLE; }
+    bool    { return T_BOOLEAN; }
+    string  { return T_STRING; }
+    
+    class   { return T_CLASS; }
+    interface { return T_INTERFACE; }
+
+    for     { return T_FOR; }
+    while   { return T_WHILE; }
+    if      { return T_IF; }
+    else    { return T_ELSE; }
+    return  { return T_RETURN; }
+    break   { return T_BREAK; }
+    continue {return T_CONTINUE; }
+
+    btoi    { return T_BTOI; }
+    dtoi    { return T_DTOI; }
+    itob    { return T_ITOB; }
+    itod    { return T_ITOD; }
+    __line__ { return T_LINE; }
+    __func__ { return T_FUNC; }
+    NewArray { return T_NEW_ARRAY; }
+    Print   { return T_PRINT; }
+    ReadInteger { return T_READ_INTEGER; }
+    ReadLine { return T_READ_LINE;}
+
+    null    { return T_NULL; }
+    this    { return T_THIS; }
+    import  { return T_IMPORT; }
+    new     { return T_NEW; }
+    private { return T_PRIVATE; }
+    public  { return T_PUBLIC; }
+    extends { return T_EXTENDS; }
+
+    true {
+        yylval.boolval = true;
+        return T_BOOLEAN_LITERAL;
     }
     
-    true|false {
-        PRINT_TOKEN(T_BOOLEANLITERAL);
+    false {
+        yylval.boolval = false;
+        return T_BOOLEAN_LITERAL;
     }
 
-    {RSERVED_KEYWORD}|{OPERATOR} {
-        ECHO;
-        PRINT_NEWLINE;
+    {RSERVED_KEYWORD} {
+        // TODO: write all    
     }
 
-    {INTEGER}|{HEXADECIMAL} {
-        PRINT_TOKEN(T_INTLITERAL);
+    {OP_LOGIC} {
+        yylval.strval = yytext;
+        return T_OP_LOGIC;
     }
 
-    {FLOAT}|{SCI_FLOAT} {
-        PRINT_TOKEN(T_DOUBLELITERAL);
+    {OP_ARITHMETIC} {
+        return yytext[0];
+    }
+
+    {OP_COMPARISON} {
+        yylval.strval = yytext;
+        return T_OP_COMPARISON;
+    }
+
+    {OP_ASSIGN} {
+        yylval.strval = yytext;
+        return T_OP_ASSIGN;
+    }
+
+    {INTEGER} {
+        yylval.intval = atoi(yytext);
+        return T_INT_LITERAL;
+    }
+
+    {HEXADECIMAL} {
+        // TODO: set intval
+        return T_INT_LITERAL;
+    }
+
+    {FLOAT} {
+        yylval.doubleval = strtod(yytext, 0);
+        return T_DOUBLE_LITERAL;
+    }
+
+    {SCI_FLOAT} {
+        // TODO: set doubleval
+        return T_DOUBLE_LITERAL;
     }
 
     {STRING} {
-        PRINT_TOKEN(T_STRINGLITERAL);
+        yylval.strval = yytext;
+        return T_STRING_LITERAL;
     }
 
     {ID} {
-        if (!is_macro(yytext)) { PRINT_TOKEN(T_ID); }
-        else /* check for macro definition */
-        {
-            //  saving the pointer to the buffer for later return
-            main_buf_state = YY_CURRENT_BUFFER;
-            dmap_flag = true;
-            //  passing the defined value back to the flex
-            yy_scan_string(get_macro(yytext).c_str());
-        }
+        yylval.strval = yytext;
+        return T_ID;
+    }
+
+    {ARRAY_SYMBOL} {
+        return T_ARRAY;
     }
 
     {SYMBOL} {
-        ECHO;
-        PRINT_NEWLINE;
+        return yytext[0];
     }
 
     [ \t\n] ;
@@ -150,48 +165,8 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     . /*ignore*/ ;
 
     <<EOF>> {
-        if (dmap_flag) {
-            //  return to the previous buffer
-            yy_switch_to_buffer(main_buf_state);
-            dmap_flag = false;
-        }
-        else yyterminate();
-    }
-}
-
-<IN_DEFINE>{
-    {}
-
-    {ID}    {
-        //  extracting the define id
-        if (!id_flag) strcpy(def_id, yytext);
-        //  extracting the define value
-        else
-        {
-            for (int i = 0; i < yyleng; ++i)
-                def_body[dbp + i] = yytext[i];
-            dbp += yyleng;
-        }
-
-        id_flag = true;
-    }
-
-    "\n"    {
-        /* adding two ascii nulls to string ending */
-        def_body[dbp] = def_body[dbp+1] = 0;
-        dmap.insert(pair<string, string>(def_id, def_body));
-
-        /* reset vars */
-        dbp = 0;
-        id_flag = false;
-
-        BEGIN(INITIAL);
-    }
-
-    .       {
-        for (int i = 0; i < yyleng; ++i)
-            def_body[dbp + i] = yytext[i];
-        dbp += yyleng;
+        yyterminate();
+        return 0;
     }
 }
 
@@ -208,5 +183,3 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     "\n"    BEGIN(INITIAL);
     .       ;
 }
-
-
