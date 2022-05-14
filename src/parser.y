@@ -164,7 +164,6 @@ stmt:
     |   if_stmt                                         //  IfStmt
     |   break_stmt                                      //  BreakStmt
     |   continue_stmt                                   //  ContinueStmt
-    //  TODO
 
 return_stmt:    
         T_RETURN expr_optional ';'                      //  return < Expr >;
@@ -256,7 +255,6 @@ expr_:
     |   T_BTOI '(' expr ')'                             //  btoi(Expr)
     |   T_LINE                                          //  __line__
     |   T_FUNC                                          //  __func__
-    //  TODO
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
 assignment:
