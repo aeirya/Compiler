@@ -157,13 +157,15 @@ stmt_block_optional:
     |   stmt
 
 stmt_block:
-        '{' stmt_body '}'                               //  {VariableDecl∗ Stmt∗}
+        '{' stmt_body_var_decl '}'                      //  {VariableDecl∗ Stmt∗}
 
 //  DESCRIPTION: stmt_body :==: VariableDecl∗ Stmt∗
-//      A more powerfull version (order-agnostic)
+stmt_body_var_decl:
+        variable_decl stmt_body_var_decl
+    |   stmt_body
+
 stmt_body:
         /* epsilon */
-    |   variable_decl stmt_body
     |   stmt stmt_body
     |   stmt_block stmt_body
 
