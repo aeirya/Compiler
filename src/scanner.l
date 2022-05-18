@@ -35,7 +35,7 @@ OPERATOR        {OP_LOGIC}|{OP_ARITHMETIC}|{OP_COMPARISON}|{OP_ASSIGN}
 RK_TYPE         void|int|double|bool|string|class
 RK_FLOW_CONTROL for|while|if|else|return|break|continue
 RK_FUNCTIONS    btoi|dtoi|itob|itod|__line__|__func__|NewArray|Print|ReadInteger|ReadLine
-RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|private|public|define|extends
+RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|protected|private|public|define|extends
 
 %x IN_MULTILINE_COMMENT
 %x IN_ONELINE_COMMENT
@@ -85,9 +85,11 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     this    { return T_THIS; }
     import  { return T_IMPORT; }
     new     { return T_NEW; }
+    protected { return T_PROTECTED; }
     private { return T_PRIVATE; }
     public  { return T_PUBLIC; }
     extends { return T_EXTENDS; }
+    implements { return T_IMPLEMENTS; }
 
     true {
         yylval.boolval = true;
