@@ -106,7 +106,7 @@ implement_optional:
     |   T_IMPLEMENTS implement_nonempty                 //  <implements ident+,>
 
 implement_nonempty:                                     //  ident+,
-    |   T_ID
+        T_ID
     |   implement_nonempty ',' T_ID
 
 //  DESCRIPTION: class_body :==: Field*
