@@ -88,6 +88,7 @@ RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|
     private { return T_PRIVATE; }
     public  { return T_PUBLIC; }
     extends { return T_EXTENDS; }
+    implements { return T_IMPLEMENTS; }
 
     true {
         yylval.boolval = true;

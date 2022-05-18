@@ -66,6 +66,7 @@
 %token T_PRIVATE
 %token T_PUBLIC
 %token T_EXTENDS
+%token T_IMPLEMENTS
 
 %token T_ARRAY
 
@@ -93,9 +94,20 @@ decl:
 variable_decl:
         variable ';'                                    //  Variable;
 
-class_decl:
-        T_CLASS T_ID '{' class_body '}'                 //  class ident { Field* }
-    |   T_CLASS T_ID T_EXTENDS T_ID '{' class_body '}'  //  class ident Extends ident { Field* } [TODO: Not sure, nothing in doc]
+class_decl:                                             //  class ident <extends ident> <implements ident+,> {F ield∗}
+        T_CLASS T_ID extends_optional implement_optional '{' class_body '}'
+
+extends_optional:
+        /* epsilon */
+    |   T_EXTENDS T_ID                                  //  <extends ident>
+
+implement_optional:
+        /* epsilon */
+    |   T_IMPLEMENTS implement_nonempty                 //  <implements ident+,>
+
+implement_nonempty:                                     //  ident+,
+    |   T_ID
+    |   implement_nonempty ',' T_ID
 
 //  DESCRIPTION: class_body :==: Field*
 class_body:
