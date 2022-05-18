@@ -63,6 +63,7 @@
 %token T_THIS
 %token T_IMPORT
 %token T_NEW
+%token T_PROTECTED
 %token T_PRIVATE
 %token T_PUBLIC
 %token T_EXTENDS
@@ -119,6 +120,7 @@ access_mode:
         /* epsilon */
     |   T_PUBLIC                                        //  public
     |   T_PRIVATE                                       //  private
+    |   T_PROTECTED                                     //  protected
 
 interface_decl:
     T_INTERFACE T_ID '{' prototype '}'
