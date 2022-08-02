@@ -42,3 +42,10 @@ src/parser.output
 # Output files
 out/
 report/
+
+# IDE files
+.vscode
+
+# zip and logs
+*.zip
+*.log
