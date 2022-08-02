@@ -7,6 +7,12 @@
 - [ ] add scoping
 - [ ] handle scoping errors
 
+### merge stanford files
+- [ ] merge scanners
+- [ ] merge parsers
+- [ ] add makefile
+
+
 ### checkings:
 - [ ] Arithmetic operations require numbers.
 - [ ] The actual parameters in a call must be compatible with the formal parameters. 
