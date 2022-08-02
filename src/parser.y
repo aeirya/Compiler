@@ -159,7 +159,9 @@ stmt_block_optional:
     |   stmt
 
 stmt_block:
-        '{' stmt_body_var_decl '}'                      //  {VariableDecl∗ Stmt∗}
+        '{'
+        stmt_body_var_decl 
+        '}'                      //  {VariableDecl∗ Stmt∗}
 
 //  DESCRIPTION: stmt_body :==: VariableDecl∗ Stmt∗
 stmt_body_var_decl:
