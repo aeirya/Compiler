@@ -17,6 +17,7 @@
 
 void yyerror(const char *msg); // standard error-handling routine
 
+struct VariableStruct;
 %}
 
  
@@ -29,8 +30,12 @@ void yyerror(const char *msg); // standard error-handling routine
     char *stringConstant;
     double doubleConstant;
     char identifier[MaxIdentLen+1]; // +1 for terminating null
+    
     Decl *decl;
     List<Decl*> *declList;
+
+    Type *type;
+    struct VariableStruct *var;
 }
 
 
@@ -43,7 +48,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   T_While T_For T_If T_Else T_Return T_Break
 %token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
 
-%token   <identifier> T_Identifier
+%token   <identifier> T_ID
 %token   <stringConstant> T_StringConstant 
 %token   <integerConstant> T_IntConstant
 %token   <doubleConstant> T_DoubleConstant
@@ -64,12 +69,19 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <declList>  DeclList 
 %type <decl>      Decl
 
+%type <type>      Type
+%type <var>       Variable
+
+// todo: change this?
+%type <declList>  VarDeclList 
+%type <decl>      VarDecl
+
 %%
 /* Rules
  * -----
 	 
  */
-Program   :    DeclList            { 
+Program   :     DeclList            { 
                                       @1; 
                                       Program *program = new Program($1);
                                       // if no errors, advance to next phase
@@ -78,14 +90,59 @@ Program   :    DeclList            {
                                     }
           ;
 
-DeclList  :    DeclList Decl        { ($$=$1)->Append($2); }
-          |    Decl                 { ($$ = new List<Decl*>)->Append($1); }
+DeclList  :     DeclList Decl       { ($$=$1)->Append($2); }
+          |     Decl                { ($$ = new List<Decl*>)->Append($1); }
           ;
 
-Decl      :    T_Void               { /* pp2: replace with correct rules  */ } 
-          |    T_Int                { printf("another int!\n"); }
+Decl      :     VarDecl             { /* pp2: replace with correct rules  */ } 
+          |     FunctionDecl        {}
+          |     T_ID                { printf("just an ID!\n"); }
           ;
 
+FunctionDecl:
+        Type T_ID '(' formals ')' StmtBlock            //  Type ident (Formals) StmtBlock
+    |   T_Void T_ID '(' formals ')' StmtBlock          //  void ident (Formals) StmtBlock
+    ;
+
+formals   :     formals_nonempty
+          |     /* epsilon */
+          ;
+
+formals_nonempty:
+        Variable
+    |   formals_nonempty ',' Variable                   //  Variable+ ,
+    ;
+
+VarDecl   :     Variable ';'        { $$ = new VarDecl($1->id, $1->type); }
+          ;
+
+Variable  :     Type T_ID           { 
+                                        $$ = new VariableStruct; 
+                                        $$->type = $1;
+                                        Identifier *id = new Identifier(yyloc, $2); 
+                                        $$->id = id;
+                                    }
+          ;
+
+Type      :     T_Int               { $$ = Type::intType; }
+          |     T_Double            { $$ = Type::doubleType; }
+          ;
+
+StmtBlock :     '{' VarDeclList StmtBody '}'
+          ;
+
+VarDeclList :   VarDeclList VarDecl { ($$=$1)->Append($2); }
+            |   VarDecl             { ($$ = new List<Decl*>)->Append($1); } 
+            |   /* epsilon */       {}
+            ;
+
+StmtBody  :     Statement StmtBody
+          |     StmtBlock StmtBody
+          |     /* epsilon */
+          ;
+
+Statement :     ';'
+          ;
 
 %%
 

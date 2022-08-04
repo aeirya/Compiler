@@ -135,7 +135,7 @@ SINGLE_COMMENT    ("//"[^\n]*)
                          ReportError::LongIdentifier(&yylloc, yytext);
                        strncpy(yylval.identifier, yytext, MaxIdentLen);
                        yylval.identifier[MaxIdentLen] = '\0';
-                       return T_Identifier; }
+                       return T_ID; }
 
 
  /* -------------------- Default rule (error) -------------------- */
