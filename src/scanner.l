@@ -1,187 +1,197 @@
-%option noyywrap
-%option yylineno
-/* %option header-file="lex.yy.h" */
+/* File:  scanner.l
+ * ----------------
+ * Lex input file to generate the scanner for the compiler.
+ */
 
 %{
 
-#include <string>
+#include <string.h>
+#include "scanner.h"
+#include "utility.h" // for PrintDebug()
+#include "errors.h"
+#include "parser.h" // for token codes, yylval
+#include <vector>
+using namespace std;
 
-/*
-    references:
+#define TAB_SIZE 8
 
-    http://westes.github.io/flex/manual/How-can-I-match-C_002dstyle-comments_003f.html
-    http://westes.github.io/flex/manual/Multiple-Input-Buffers.html
-*/
+/* Global variables
+ * ----------------
+ * (For shame!) But we need a few to keep track of things that are
+ * preserved between calls to yylex or used outside the scanner.
+ */
+static int curLineNum, curColNum;
+vector<const char*> savedLines;
 
-#include "parser.tab.h"
+static void DoBeforeEachAction(); 
+#define YY_USER_ACTION DoBeforeEachAction();
 
 %}
 
-INTEGER         [0-9]+
-HEXADECIMAL     0(x|X)[0-9a-fA-F]+
-FLOAT           [0-9]+\.[0-9]*
-SCI_FLOAT       {FLOAT}((e|E)(\+|-)?{INTEGER})
-ID              [A-Za-z_][A-Za-z0-9_]*
-STRING          \"([^\"]|(\\\"))*\"
-SYMBOL          [\{\}\(\)\;\[\],-\.%\\!]
-ARRAY_SYMBOL    (\[[ \t\n]*\])
+/* States
+ * ------
+ * A little wrinkle on states is the COPY exclusive state which
+ * I added to first match each line and copy it ot the list of lines
+ * read before re-processing it. This allows us to print the entire
+ * line later to provide context on errors.
+ */
+%s N
+%x COPY COMM
+%option stack
 
-OP_LOGIC        &&|(\|\|)
-OP_ARITHMETIC   \+|-|\*|\/
-OP_COMPARISON   <|<=|>|>=|!=|==   
-OP_ASSIGN       =|(\+=)|-=|(\*=)|(\/=)
-OPERATOR        {OP_LOGIC}|{OP_ARITHMETIC}|{OP_COMPARISON}|{OP_ASSIGN}
+/* Definitions
+ * -----------
+ * To make our rules more readable, we establish some definitions here.
+ */
+DIGIT             ([0-9])
+HEX_DIGIT         ([0-9a-fA-F])
+HEX_INTEGER       (0[Xx]{HEX_DIGIT}+)
+INTEGER           ({DIGIT}+)
+EXPONENT          ([Ee][-+]?{INTEGER})
+DOUBLE            ({INTEGER}"."{DIGIT}*{EXPONENT}?)
+BEG_STRING        (\"[^"\n]*)
+STRING            ({BEG_STRING}\")
+IDENTIFIER        ([a-zA-Z][a-zA-Z_0-9]*)
+OPERATOR          ([-+/*%=.,;!<>()[\]{}])
+BEG_COMMENT       ("/*")
+END_COMMENT       ("*/")
+SINGLE_COMMENT    ("//"[^\n]*)
 
-RK_TYPE         void|int|double|bool|string|class
-RK_FLOW_CONTROL for|while|if|else|return|break|continue
-RK_FUNCTIONS    btoi|dtoi|itob|itod|__line__|__func__|NewArray|Print|ReadInteger|ReadLine
-RSERVED_KEYWORD {RK_TYPE}|{RK_FLOW_CONTROL}|{RK_FUNCTIONS}|null|new|this|import|protected|private|public|define|extends
+%%             /* BEGIN RULES SECTION */
 
-%x IN_MULTILINE_COMMENT
-%x IN_ONELINE_COMMENT
+<COPY>.*               { char curLine[512];
+                         //strncpy(curLine, yytext, sizeof(curLine));
+                         savedLines.push_back(strdup(yytext));
+                         curColNum = 1; yy_pop_state(); yyless(0); }
+<COPY><<EOF>>          { yy_pop_state(); }
+<*>\n                  { curLineNum++; curColNum = 1;
+                         if (YYSTATE == COPY) savedLines.push_back("");
+                         else yy_push_state(COPY); }
+
+[ ]+                   { /* ignore all spaces */  }
+<*>[\t]                { curColNum += TAB_SIZE - curColNum%TAB_SIZE + 1; }
+
+ /* -------------------- Comments ----------------------------- */
+{BEG_COMMENT}          { BEGIN(COMM); }
+<COMM>{END_COMMENT}    { BEGIN(N); }
+<COMM><<EOF>>          { ReportError::UntermComment();
+                         return 0; }
+<COMM>.                { /* ignore everything else that doesn't match */ }
+{SINGLE_COMMENT}       { /* skip to end of line for // comment */ }
+
+
+ /* --------------------- Keywords ------------------------------- */
+"void"              { return T_Void;        }
+"int"               { return T_Int;         }
+"double"            { return T_Double;      }
+"bool"              { return T_Bool;        }
+"string"            { return T_String;      }
+"null"              { return T_Null;        }
+"class"             { return T_Class;       }
+"extends"           { return T_Extends;     }
+"this"              { return T_This;        }
+"interface"         { return T_Interface;   }
+"implements"        { return T_Implements;  }
+"while"             { return T_While;       }
+"for"               { return T_For;         }
+"if"                { return T_If;          }
+"else"              { return T_Else;        }
+"return"            { return T_Return;      }
+"break"             { return T_Break;       }
+"new"               { return T_New;         }
+"NewArray"          { return T_NewArray;    }
+"Print"             { return T_Print;       }
+"ReadInteger"       { return T_ReadInteger; }
+"ReadLine"          { return T_ReadLine;    }
+
+
+
+ /* -------------------- Operators ----------------------------- */
+"<="                { return T_LessEqual;   }
+">="                { return T_GreaterEqual;}
+"=="                { return T_Equal;       }
+"!="                { return T_NotEqual;    }
+"&&"                { return T_And;         }
+"||"                { return T_Or;          }
+"[]"                { return T_Dims;        }
+{OPERATOR}          { return yytext[0];     }
+
+ /* -------------------- Constants ------------------------------ */
+"true"|"false"      { yylval.boolConstant = (yytext[0] == 't');
+                         return T_BoolConstant; }
+{INTEGER}           { yylval.integerConstant = strtol(yytext, NULL, 10);
+                         return T_IntConstant; }
+{HEX_INTEGER}       { yylval.integerConstant = strtol(yytext, NULL, 16);
+                         return T_IntConstant; }
+{DOUBLE}            { yylval.doubleConstant = atof(yytext);
+                         return T_DoubleConstant; }
+{STRING}            { yylval.stringConstant = strdup(yytext); 
+                         return T_StringConstant; }
+{BEG_STRING}        { ReportError::UntermString(&yylloc, yytext); }
+
+
+ /* -------------------- Identifiers --------------------------- */
+{IDENTIFIER}        { if (strlen(yytext) > MaxIdentLen)
+                         ReportError::LongIdentifier(&yylloc, yytext);
+                       strncpy(yylval.identifier, yytext, MaxIdentLen);
+                       yylval.identifier[MaxIdentLen] = '\0';
+                       return T_Identifier; }
+
+
+ /* -------------------- Default rule (error) -------------------- */
+.                   { ReportError::UnrecogChar(&yylloc, yytext[0]); }
 
 %%
 
-<INITIAL>{
-    {}
 
-    "/*"    {
-        BEGIN(IN_MULTILINE_COMMENT);
-    }
-
-    "//"    {
-        BEGIN(IN_ONELINE_COMMENT);
-    }
-
-    void    { return T_VOID; }
-    int     { return T_INT; }
-    double  { return T_DOUBLE; }
-    bool    { return T_BOOLEAN; }
-    string  { return T_STRING; }
-    
-    class   { return T_CLASS; }
-    interface { return T_INTERFACE; }
-
-    for     { return T_FOR; }
-    while   { return T_WHILE; }
-    if      { return T_IF; }
-    else    { return T_ELSE; }
-    return  { return T_RETURN; }
-    break   { return T_BREAK; }
-    continue {return T_CONTINUE; }
-
-    btoi    { return T_BTOI; }
-    dtoi    { return T_DTOI; }
-    itob    { return T_ITOB; }
-    itod    { return T_ITOD; }
-    __line__ { return T_LINE; }
-    __func__ { return T_FUNC; }
-    NewArray { return T_NEW_ARRAY; }
-    Print   { return T_PRINT; }
-    ReadInteger { return T_READ_INTEGER; }
-    ReadLine { return T_READ_LINE;}
-
-    null    { return T_NULL; }
-    this    { return T_THIS; }
-    import  { return T_IMPORT; }
-    new     { return T_NEW; }
-    protected { return T_PROTECTED; }
-    private { return T_PRIVATE; }
-    public  { return T_PUBLIC; }
-    extends { return T_EXTENDS; }
-    implements { return T_IMPLEMENTS; }
-
-    true {
-        yylval.boolval = true;
-        return T_BOOLEAN_LITERAL;
-    }
-    
-    false {
-        yylval.boolval = false;
-        return T_BOOLEAN_LITERAL;
-    }
-
-    {RSERVED_KEYWORD} {
-        // TODO: write all    
-    }
-
-    {OP_LOGIC} {
-        yylval.strval = yytext;
-        return T_OP_LOGIC;
-    }
-
-    {OP_ARITHMETIC} {
-        return yytext[0];
-    }
-
-    {OP_COMPARISON} {
-        yylval.strval = yytext;
-        return T_OP_COMPARISON;
-    }
-
-    {OP_ASSIGN} {
-        yylval.strval = yytext;
-        return T_OP_ASSIGN;
-    }
-
-    {INTEGER} {
-        yylval.intval = atoi(yytext);
-        return T_INT_LITERAL;
-    }
-
-    {HEXADECIMAL} {
-        // TODO: set intval
-        return T_INT_LITERAL;
-    }
-
-    {FLOAT} {
-        yylval.doubleval = strtod(yytext, 0);
-        return T_DOUBLE_LITERAL;
-    }
-
-    {SCI_FLOAT} {
-        // TODO: set doubleval
-        return T_DOUBLE_LITERAL;
-    }
-
-    {STRING} {
-        yylval.strval = yytext;
-        return T_STRING_LITERAL;
-    }
-
-    {ID} {
-        yylval.strval = yytext;
-        return T_ID;
-    }
-
-    {ARRAY_SYMBOL} {
-        return T_ARRAY;
-    }
-
-    {SYMBOL} {
-        return yytext[0];
-    }
-
-    [ \t\n] ;
-
-    . /*ignore*/ ;
-
-    <<EOF>> {
-        yyterminate();
-        return 0;
-    }
+/* Function: InitScanner
+ * ---------------------
+ * This function will be called before any calls to yylex().  It is designed
+ * to give you an opportunity to do anything that must be done to initialize
+ * the scanner (set global variables, configure starting state, etc.). One
+ * thing it already does for you is assign the value of the global variable
+ * yy_flex_debug that controls whether flex prints debugging information
+ * about each token and what rule was matched. If set to false, no information
+ * is printed. Setting it to true will give you a running trail that might
+ * be helpful when debugging your scanner. Please be sure the variable is
+ * set to false when submitting your final version.
+ */
+void InitScanner()
+{
+    PrintDebug("lex", "Initializing scanner");
+    yy_flex_debug = false;
+    BEGIN(N);
+    yy_push_state(COPY); // copy first line at start
+    curLineNum = 1;
+    curColNum = 1;
 }
 
-<IN_MULTILINE_COMMENT>{
-    {}
 
-    "*/"    BEGIN(INITIAL);
-    .       ;
+/* Function: DoBeforeEachAction()
+ * ------------------------------
+ * This function is installed as the YY_USER_ACTION. This is a place
+ * to group code common to all actions.
+ * On each match, we fill in the fields to record its location and
+ * update our column counter.
+ */
+static void DoBeforeEachAction()
+{
+   yylloc.first_line = curLineNum;
+   yylloc.first_column = curColNum;
+   yylloc.last_column = curColNum + yyleng - 1;
+   curColNum += yyleng;
 }
 
-<IN_ONELINE_COMMENT>{
-    {}
-
-    "\n"    BEGIN(INITIAL);
-    .       ;
+/* Function: GetLineNumbered()
+ * ---------------------------
+ * Returns string with contents of line numbered n or NULL if the
+ * contents of that line are not available.  Our scanner copies
+ * each line scanned and appends each to a list so we can later
+ * retrieve them to report the context for errors.
+ */
+const char *GetLineNumbered(int num) {
+   if (num <= 0 || num > savedLines.size()) return NULL;
+   return savedLines[num-1]; 
 }
+
+

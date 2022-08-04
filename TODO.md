@@ -1,7 +1,7 @@
 
 ## todo
 
-- [ ] add stanford files
+- [x] add stanford files
 - [ ] add missing features from previous phases
 
 - [ ] add scoping
