@@ -17,8 +17,23 @@
 
 void yyerror(const char *msg); // standard error-handling routine
 
-struct VariableStruct;
 %}
+
+
+/* Tokens
+ * ------
+ */
+%token   T_Void T_Bool T_Int T_Double T_String T_Class 
+%token   T_LessEqual T_GreaterEqual T_Equal T_NotEqual T_Dims
+%token   T_And T_Or T_Null T_Extends T_This T_Interface T_Implements
+%token   T_While T_For T_If T_Else T_Return T_Break
+%token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
+
+%token   <identifier> T_ID
+%token   <stringConstant> T_StringConstant 
+%token   <integerConstant> T_IntConstant
+%token   <doubleConstant> T_DoubleConstant
+%token   <boolConstant> T_BoolConstant
 
  
 /* yylval 
@@ -36,23 +51,15 @@ struct VariableStruct;
 
     Type *type;
     struct VariableStruct *var;
+
+    VarDecl *varDecl;
+    List<VarDecl*> *varDeclList;
+
+    StmtBlock *stmtBlock;
+
+    Statement *stmt;
+    List<Stmt*> *stmtList;
 }
-
-
-/* Tokens
- * ------
- */
-%token   T_Void T_Bool T_Int T_Double T_String T_Class 
-%token   T_LessEqual T_GreaterEqual T_Equal T_NotEqual T_Dims
-%token   T_And T_Or T_Null T_Extends T_This T_Interface T_Implements
-%token   T_While T_For T_If T_Else T_Return T_Break
-%token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
-
-%token   <identifier> T_ID
-%token   <stringConstant> T_StringConstant 
-%token   <integerConstant> T_IntConstant
-%token   <doubleConstant> T_DoubleConstant
-%token   <boolConstant> T_BoolConstant
 
 
 /* Non-terminal types
@@ -72,9 +79,12 @@ struct VariableStruct;
 %type <type>      Type
 %type <var>       Variable
 
-// todo: change this?
-%type <declList>  VarDeclList 
-%type <decl>      VarDecl
+%type <varDeclList>  VarDeclList 
+%type <varDecl>      VarDecl
+
+%type <stmtBlock> StmtBlock
+%type <stmtList>  StmtBody
+%type <stmt>      Statement
 
 %%
 /* Rules
@@ -96,7 +106,7 @@ DeclList  :     DeclList Decl       { ($$=$1)->Append($2); }
 
 Decl      :     VarDecl             { /* pp2: replace with correct rules  */ } 
           |     FunctionDecl        {}
-          |     T_ID                { printf("just an ID!\n"); }
+          |     T_ID                { printf("just an ID!\n"); }    // TODO: remove this
           ;
 
 FunctionDecl:
@@ -128,20 +138,20 @@ Type      :     T_Int               { $$ = Type::intType; }
           |     T_Double            { $$ = Type::doubleType; }
           ;
 
-StmtBlock :     '{' VarDeclList StmtBody '}'
+StmtBlock :     '{' VarDeclList StmtBody '}'    { $$ = new StmtBlock($1, $2); }
           ;
 
 VarDeclList :   VarDeclList VarDecl { ($$=$1)->Append($2); }
-            |   VarDecl             { ($$ = new List<Decl*>)->Append($1); } 
-            |   /* epsilon */       {}
+            |   VarDecl             { ($$ = new List<VarDecl*>)->Append($1); } 
+            |   /* epsilon */       { $$ = new List<VarDecl*>; }
             ;
 
-StmtBody  :     Statement StmtBody
-          |     StmtBlock StmtBody
-          |     /* epsilon */
+StmtBody  :     Statement StmtBody  { ($$=$2)->Append($1); }
+          |     StmtBlock StmtBody  { $$ = $2; }    // TODO: handle this
+          |     /* epsilon */       { $$ = new List<Stmt*>; }
           ;
 
-Statement :     ';'
+Statement :     ';'                 { return new Stmt(); }
           ;
 
 %%
