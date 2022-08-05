@@ -43,6 +43,8 @@ class IntConstant : public Expr
   
   public:
     IntConstant(yyltype loc, int val);
+
+    int getValueTest() { return value; }
 };
 
 class DoubleConstant : public Expr 
@@ -104,6 +106,8 @@ class ArithmeticExpr : public CompoundExpr
   public:
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
+
+    void test();
 };
 
 class RelationalExpr : public CompoundExpr 

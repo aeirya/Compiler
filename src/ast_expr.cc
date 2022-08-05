@@ -82,4 +82,10 @@ NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     (elemType=et)->SetParent(this);
 }
 
-       
+void ArithmeticExpr::test() {
+    IntConstant* l = dynamic_cast<IntConstant*>(left);
+    IntConstant* r = dynamic_cast<IntConstant*>(right);
+    std::cout << "left value is: " << l->getValueTest() << std::endl;
+    std::cout << "right value is: " << r->getValueTest() << std::endl;
+    std::cout << l->getValueTest() + r->getValueTest() << std::endl;
+}
