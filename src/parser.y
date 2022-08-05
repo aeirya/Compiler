@@ -63,6 +63,10 @@ void yyerror(const char *msg); // standard error-handling routine
     Expr *expr;
 
     LValue *lvalue;
+
+    Operator *op;
+
+    Identifier *id;
 }
 
 
@@ -90,11 +94,14 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmtList>  StmtBody
 %type <stmt>      Statement
 
-%type <expr>      expr
-%type <expr>      expr_
-%type <expr>      constant
-
+%type <expr>      expr expr_
+%type <expr>      constant assignment
+%type <expr>      logic_expr logic_comp arith_expr logic_uni
 %type <lvalue>    l_value
+
+%type <op>        logic_op logic_comp_op arith_op
+
+%type <id>        ID
 
 %%
 /* Rules
@@ -119,29 +126,29 @@ Decl      :     VarDecl             { /* pp2: replace with correct rules  */ }
           |     T_ID                { printf("just an ID!\n"); }    // TODO: remove this
           ;
 
-FunctionDecl:
-        Type T_ID '(' formals ')' StmtBlock            //  Type ident (Formals) StmtBlock
-    |   T_Void T_ID '(' formals ')' StmtBlock          //  void ident (Formals) StmtBlock
-    ;
+FunctionDecl:   Type T_ID '(' formals ')' StmtBlock                 //  Type ident (Formals) StmtBlock
+            |   T_Void T_ID '(' formals ')' StmtBlock               //  void ident (Formals) StmtBlock
+            ;
 
 formals   :     formals_nonempty
           |     /* epsilon */
           ;
 
-formals_nonempty:
-        Variable
-    |   formals_nonempty ',' Variable                   //  Variable+ ,
-    ;
+formals_nonempty:   Variable
+                |   formals_nonempty ',' Variable                   //  Variable+ ,
+                ;
 
 VarDecl   :     Variable ';'        { $$ = new VarDecl($1->id, $1->type); }
           ;
 
-Variable  :     Type T_ID           { 
+Variable  :     Type ID           { 
                                         $$ = new VariableStruct; 
                                         $$->type = $1;
-                                        Identifier *id = new Identifier(yyloc, $2); 
-                                        $$->id = id;
+                                        $$->id = $2;
                                     }
+          ;
+
+ID        :     T_ID                { $$ = new Identifier(yyloc, $1); }
           ;
 
 Type      :     T_Int               { $$ = Type::intType; }
@@ -162,12 +169,50 @@ StmtBody  :     Statement StmtBody  { ($$=$2)->Append($1); }
           ;
 
 Statement :     ';'                 { $$ = new Stmt; }
-          |     expr ';'
+          |     expr ';'            { $$ = $1; }
           ;
 
-expr      :     assignment                              //  LValue = Expr
+expr      :     assignment          //  LValue = Expr
+          |     logic_expr
           |     expr_
           ;
+
+logic_op  :     T_And               { $$ = new Operator(yylloc, "and"); }
+          |     T_Or                { $$ = new Operator(yylloc, "or"); }
+          ;
+
+logic_expr:     logic_comp logic_op logic_expr      { $$ = new LogicalExpr($1, $2, $3); }
+          |     logic_comp
+          |     '(' logic_expr ')'                  { $$ = $2; }
+          ;
+
+logic_comp:     arith_expr logic_comp_op logic_comp { $$ = new RelationalExpr($1, $2, $3); }
+          |     arith_expr
+          |     '(' logic_comp ')'                  { $$ = $2; }
+
+arith_expr:     expr_ arith_op arith_expr           { $$ = new ArithmeticExpr($1, $2, $3); }
+          |     logic_uni                           
+          ;
+
+arith_op  :     '+'                 { $$ = new Operator(yylloc, "sum"); }
+          |     '-'                 { $$ = new Operator(yylloc, "sub"); }
+          |     '*'                 { $$ = new Operator(yylloc, "mul"); }
+          |     '/'                 { $$ = new Operator(yylloc, "div"); }
+          |     '%'                 { $$ = new Operator(yylloc, "mod"); }
+          ;
+    
+logic_uni :     '-' expr_           { $$ = new LogicalExpr(new Operator(yylloc, "neg"), $2); }
+          |     '!' expr_           { $$ = new LogicalExpr(new Operator(yylloc, "not"), $2); }  
+          |     expr_
+
+
+logic_comp_op:  T_LessEqual         { $$ = new Operator(yylloc, "le"); }
+             |  T_GreaterEqual      { $$ = new Operator(yylloc, "ge"); }
+             |  T_Equal             { $$ = new Operator(yylloc, "eq"); }
+             |  T_NotEqual          { $$ = new Operator(yylloc, "neq"); }
+             |  '<'                 { $$ = new Operator(yylloc, "lt"); }
+             |  '>'                 { $$ = new Operator(yylloc, "gt"); }
+             ;
 
 expr_     :     '(' expr ')'        { $$ = $2; }        //  (Expr)
           |     constant                                //  Constant
@@ -175,20 +220,23 @@ expr_     :     '(' expr ')'        { $$ = $2; }        //  (Expr)
           ;
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
-assignment:     l_value '=' expr                        //  LValue [ */+-]= Expr
+assignment:     l_value '=' expr    { $$ = new AssignExpr($1, new Operator(yylloc, "eq"), $3); }    //  LValue [ */+-]= Expr
           ;
 
 l_value   :     l_value_            { $$ = new LValue(yylloc); }   
+          |     expr_ '.' ID        { $$ = new FieldAccess($1, $3); }               //  Expr.ident  [Error in documents]
+          |     expr_ '[' expr ']'  { $$ = new ArrayAccess(yylloc, $1, $3); }       //  Expr[Expr]  [Error in documents]
           ;
+//  TODO
 
-l_value_  :     T_ID                                    //  ident
+l_value_  :     T_ID                //  ident
 
 constant:
         T_IntConstant               { $$ = new IntConstant(yylloc, yylval.integerConstant); }      //  intConstant
-    |   T_DoubleConstant                                //  doubleConstant
-    |   T_BoolConstant                                  //  boolConstant
-    |   T_StringConstant                                //  stringConstant
-    |   T_Null                                          //  null
+    |   T_DoubleConstant            { $$ = new DoubleConstant(yylloc, yylval.doubleConstant); }    //  doubleConstant
+    |   T_BoolConstant              { $$ = new BoolConstant(yylloc, yylval.boolConstant); }        //  boolConstant
+    |   T_StringConstant            { $$ = new StringConstant(yylloc, yylval.stringConstant); }    //  stringConstant
+    |   T_Null                      { $$ = new NullConstant(yyloc); }                              //  null
 
 %%
 
