@@ -57,8 +57,12 @@ void yyerror(const char *msg); // standard error-handling routine
 
     StmtBlock *stmtBlock;
 
-    Statement *stmt;
+    Stmt *stmt;
     List<Stmt*> *stmtList;
+
+    Expr *expr;
+
+    LValue *lvalue;
 }
 
 
@@ -85,6 +89,12 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmtBlock> StmtBlock
 %type <stmtList>  StmtBody
 %type <stmt>      Statement
+
+%type <expr>      expr
+%type <expr>      expr_
+%type <expr>      constant
+
+%type <lvalue>    l_value
 
 %%
 /* Rules
@@ -138,12 +148,12 @@ Type      :     T_Int               { $$ = Type::intType; }
           |     T_Double            { $$ = Type::doubleType; }
           ;
 
-StmtBlock :     '{' VarDeclList StmtBody '}'    { $$ = new StmtBlock($1, $2); }
+StmtBlock :     '{' VarDeclList StmtBody '}'    { $$ = new StmtBlock($2, $3); }
+          |     '{' StmtBody '}'                { $$ = new StmtBlock(new List<VarDecl*>, $2); }
           ;
 
 VarDeclList :   VarDeclList VarDecl { ($$=$1)->Append($2); }
-            |   VarDecl             { ($$ = new List<VarDecl*>)->Append($1); } 
-            |   /* epsilon */       { $$ = new List<VarDecl*>; }
+            |   VarDecl             { ($$ = new List<VarDecl*>)->Append($1); }
             ;
 
 StmtBody  :     Statement StmtBody  { ($$=$2)->Append($1); }
@@ -151,8 +161,34 @@ StmtBody  :     Statement StmtBody  { ($$=$2)->Append($1); }
           |     /* epsilon */       { $$ = new List<Stmt*>; }
           ;
 
-Statement :     ';'                 { return new Stmt(); }
+Statement :     ';'                 { $$ = new Stmt; }
+          |     expr ';'
           ;
+
+expr      :     assignment                              //  LValue = Expr
+          |     expr_
+          ;
+
+expr_     :     '(' expr ')'        { $$ = $2; }        //  (Expr)
+          |     constant                                //  Constant
+          |     l_value                                 //  LValue
+          ;
+
+//  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
+assignment:     l_value '=' expr                        //  LValue [ */+-]= Expr
+          ;
+
+l_value   :     l_value_            { $$ = new LValue(yylloc); }   
+          ;
+
+l_value_  :     T_ID                                    //  ident
+
+constant:
+        T_IntConstant               { $$ = new IntConstant(yylloc, yylval.integerConstant); }      //  intConstant
+    |   T_DoubleConstant                                //  doubleConstant
+    |   T_BoolConstant                                  //  boolConstant
+    |   T_StringConstant                                //  stringConstant
+    |   T_Null                                          //  null
 
 %%
 
