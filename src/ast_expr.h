@@ -17,6 +17,8 @@
 #include "ast_stmt.h"
 #include "list.h"
 
+#include <string.h>
+
 class NamedType; // for new
 class Type; // for NewArray
 
@@ -36,6 +38,19 @@ class EmptyExpr : public Expr
   public:
 };
 
+class Operator : public Node 
+{
+  protected:
+    char tokenString[4];
+    
+  public:
+    Operator(yyltype loc, const char *tok);
+    friend ostream& operator<<(ostream& out, Operator *o) { return out << o->tokenString; }
+
+    template <typename T>
+    T apply(T left, T right);
+ };
+ 
 class IntConstant : public Expr 
 {
   protected:
@@ -44,7 +59,11 @@ class IntConstant : public Expr
   public:
     IntConstant(yyltype loc, int val);
 
-    int getValueTest() { return value; }
+    IntConstant* merge(const IntConstant* b, Operator* op) const;
+
+    string toCode() {
+      return to_string(value);
+    }
 };
 
 class DoubleConstant : public Expr 
@@ -80,16 +99,6 @@ class NullConstant: public Expr
     NullConstant(yyltype loc) : Expr(loc) {}
 };
 
-class Operator : public Node 
-{
-  protected:
-    char tokenString[4];
-    
-  public:
-    Operator(yyltype loc, const char *tok);
-    friend ostream& operator<<(ostream& out, Operator *o) { return out << o->tokenString; }
- };
- 
 class CompoundExpr : public Expr
 {
   protected:
@@ -107,7 +116,11 @@ class ArithmeticExpr : public CompoundExpr
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
 
-    void test();
+    const char* evaluate();
+
+  private:
+    template <typename T>
+    T compileEval(bool& result);
 };
 
 class RelationalExpr : public CompoundExpr 

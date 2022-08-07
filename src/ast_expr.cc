@@ -13,6 +13,10 @@ IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
 }
 
+IntConstant* IntConstant::merge(const IntConstant* b, Operator* op) const {
+    return new IntConstant(*location, op->apply(value,b->value));
+}
+
 DoubleConstant::DoubleConstant(yyltype loc, double val) : Expr(loc) {
     value = val;
 }
@@ -30,6 +34,7 @@ Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
     Assert(tok != NULL);
     strncpy(tokenString, tok, sizeof(tokenString));
 }
+
 CompoundExpr::CompoundExpr(Expr *l, Operator *o, Expr *r) 
   : Expr(Join(l->GetLocation(), r->GetLocation())) {
     Assert(l != NULL && o != NULL && r != NULL);
@@ -46,7 +51,6 @@ CompoundExpr::CompoundExpr(Operator *o, Expr *r)
     (right=r)->SetParent(this);
 }
    
-  
 ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
     (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);
@@ -60,7 +64,6 @@ FieldAccess::FieldAccess(Expr *b, Identifier *f)
     (field=f)->SetParent(this);
 }
 
-
 Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     Assert(f != NULL && a != NULL); // b can be be NULL (just means no explicit base)
     base = b;
@@ -68,13 +71,11 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     (field=f)->SetParent(this);
     (actuals=a)->SetParentAll(this);
 }
- 
 
 NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) { 
   Assert(c != NULL);
   (cType=c)->SetParent(this);
 }
-
 
 NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     Assert(sz != NULL && et != NULL);
@@ -82,10 +83,20 @@ NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     (elemType=et)->SetParent(this);
 }
 
-void ArithmeticExpr::test() {
-    IntConstant* l = dynamic_cast<IntConstant*>(left);
-    IntConstant* r = dynamic_cast<IntConstant*>(right);
-    std::cout << "left value is: " << l->getValueTest() << std::endl;
-    std::cout << "right value is: " << r->getValueTest() << std::endl;
-    std::cout << l->getValueTest() + r->getValueTest() << std::endl;
+template <typename T>
+T Operator::apply(T l, T r) {
+    char* t = tokenString;
+    
+    if (t[0] == 's' && t[1] == 'u') {
+        if (t[2] == 'm') return l + r;
+        if (t[2] == 'b') return l - r;
+    }
 }
+
+// void ArithmeticExpr::test() {
+//     IntConstant* l = dynamic_cast<IntConstant*>(left);
+//     IntConstant* r = dynamic_cast<IntConstant*>(right);
+//     std::cout << "left value is: " << l->getValueTest() << std::endl;
+//     std::cout << "right value is: " << r->getValueTest() << std::endl;
+//     std::cout << l->getValueTest() + r->getValueTest() << std::endl;
+// }

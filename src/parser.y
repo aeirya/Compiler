@@ -195,7 +195,18 @@ logic_comp:     expr_ logic_comp_op logic_comp  { $$ = new RelationalExpr($1, $2
           |     expr_
           ;
 
-arith_expr:     expr_ arith_op arith_expr       { $$ = new ArithmeticExpr($1, $2, $3); }
+arith_expr:     expr_ arith_op arith_expr       { $$ = new ArithmeticExpr($1, $2, $3); 
+                                                  
+                                                  // TODO: only for test
+                                                  IntConstant *l = dynamic_cast<IntConstant*>($1);
+                                                  IntConstant *r = dynamic_cast<IntConstant*>($3);
+                                                  Operator *op = dynamic_cast<Operator*>($2);
+                                                  IntConstant* merged = l->merge(r, op);
+
+                                                  std::cout << merged->toCode() << std::endl;
+
+                                                  $$ = merged;
+}
           |     '-' expr_                       { $$ = new ArithmeticExpr(new Operator(yylloc, "neg"), $2); } 
           |     expr_                           
           ;
