@@ -15,6 +15,9 @@
 #include "parser.h"
 #include "errors.h"
 
+#include <typeinfo>
+
+
 void yyerror(const char *msg); // standard error-handling routine
 
 %}
@@ -96,7 +99,7 @@ void yyerror(const char *msg); // standard error-handling routine
 
 %type <expr>      expr expr_
 %type <expr>      constant assignment
-%type <expr>      logic_expr logic_comp arith_expr logic_uni
+%type <expr>      logic_expr logic_comp arith_expr
 %type <lvalue>    l_value
 
 %type <op>        logic_op logic_comp_op arith_op
@@ -115,6 +118,7 @@ Program   :     DeclList            {
                                       if (ReportError::NumErrors() == 0) 
                                           program->Check(); 
                                     }
+          |     StmtBody            // gimmick
           ;
 
 DeclList  :     DeclList Decl       { ($$=$1)->Append($2); }
@@ -141,7 +145,7 @@ formals_nonempty:   Variable
 VarDecl   :     Variable ';'        { $$ = new VarDecl($1->id, $1->type); }
           ;
 
-Variable  :     Type ID           { 
+Variable  :     Type ID             { 
                                         $$ = new VariableStruct; 
                                         $$->type = $1;
                                         $$->id = $2;
@@ -164,7 +168,7 @@ VarDeclList :   VarDeclList VarDecl { ($$=$1)->Append($2); }
             ;
 
 StmtBody  :     Statement StmtBody  { ($$=$2)->Append($1); }
-          |     StmtBlock StmtBody  { $$ = $2; }    // TODO: handle this
+          |     StmtBlock StmtBody  { $$ = $2; }                // TODO: handle this
           |     /* epsilon */       { $$ = new List<Stmt*>; }
           ;
 
@@ -174,6 +178,7 @@ Statement :     ';'                 { $$ = new Stmt; }
 
 expr      :     assignment          //  LValue = Expr
           |     logic_expr
+          |     arith_expr
           |     expr_
           ;
 
@@ -181,17 +186,18 @@ logic_op  :     T_And               { $$ = new Operator(yylloc, "and"); }
           |     T_Or                { $$ = new Operator(yylloc, "or"); }
           ;
 
-logic_expr:     logic_comp logic_op logic_expr      { $$ = new LogicalExpr($1, $2, $3); }
+logic_expr:     logic_comp logic_op logic_expr  { $$ = new LogicalExpr($1, $2, $3); }
           |     logic_comp
-          |     '(' logic_expr ')'                  { $$ = $2; }
           ;
 
-logic_comp:     arith_expr logic_comp_op logic_comp { $$ = new RelationalExpr($1, $2, $3); }
-          |     arith_expr
-          |     '(' logic_comp ')'                  { $$ = $2; }
+logic_comp:     expr_ logic_comp_op logic_comp  { $$ = new RelationalExpr($1, $2, $3); }
+          |     '!' expr_                       { $$ = new LogicalExpr(new Operator(yylloc, "not"), $2); }
+          |     expr_
+          ;
 
-arith_expr:     expr_ arith_op arith_expr           { $$ = new ArithmeticExpr($1, $2, $3); }
-          |     logic_uni                           
+arith_expr:     expr_ arith_op arith_expr       { $$ = new ArithmeticExpr($1, $2, $3); }
+          |     '-' expr_                       { $$ = new ArithmeticExpr(new Operator(yylloc, "neg"), $2); } 
+          |     expr_                           
           ;
 
 arith_op  :     '+'                 { $$ = new Operator(yylloc, "sum"); }
@@ -200,11 +206,6 @@ arith_op  :     '+'                 { $$ = new Operator(yylloc, "sum"); }
           |     '/'                 { $$ = new Operator(yylloc, "div"); }
           |     '%'                 { $$ = new Operator(yylloc, "mod"); }
           ;
-    
-logic_uni :     '-' expr_           { $$ = new LogicalExpr(new Operator(yylloc, "neg"), $2); }
-          |     '!' expr_           { $$ = new LogicalExpr(new Operator(yylloc, "not"), $2); }  
-          |     expr_
-
 
 logic_comp_op:  T_LessEqual         { $$ = new Operator(yylloc, "le"); }
              |  T_GreaterEqual      { $$ = new Operator(yylloc, "ge"); }
@@ -216,7 +217,7 @@ logic_comp_op:  T_LessEqual         { $$ = new Operator(yylloc, "le"); }
 
 expr_     :     '(' expr ')'        { $$ = $2; }        //  (Expr)
           |     constant                                //  Constant
-          |     l_value                                 //  LValue
+          |     l_value             { $$ = $1; }        //  LValue
           ;
 
 //  DESCRIPTION: Added because of a shift reduce error (assignment <--> Expr.ident)
@@ -231,13 +232,15 @@ l_value   :     l_value_            { $$ = new LValue(yylloc); }
 
 l_value_  :     T_ID                //  ident
 
-constant:
-        T_IntConstant               { $$ = new IntConstant(yylloc, yylval.integerConstant); }      //  intConstant
-    |   T_DoubleConstant            { $$ = new DoubleConstant(yylloc, yylval.doubleConstant); }    //  doubleConstant
-    |   T_BoolConstant              { $$ = new BoolConstant(yylloc, yylval.boolConstant); }        //  boolConstant
-    |   T_StringConstant            { $$ = new StringConstant(yylloc, yylval.stringConstant); }    //  stringConstant
-    |   T_Null                      { $$ = new NullConstant(yyloc); }                              //  null
-
+constant  :     T_IntConstant       { 
+                                        $$ = new IntConstant(yylloc, yylval.integerConstant); 
+                                        // printf("integer is %d\n", yylval.integerConstant);
+                                    }      //  intConstant
+          |     T_DoubleConstant    { $$ = new DoubleConstant(yylloc, yylval.doubleConstant); }    //  doubleConstant
+          |     T_BoolConstant      { $$ = new BoolConstant(yylloc, yylval.boolConstant); }        //  boolConstant
+          |     T_StringConstant    { $$ = new StringConstant(yylloc, yylval.stringConstant); }    //  stringConstant
+          |     T_Null              { $$ = new NullConstant(yyloc); }                              //  null
+          ;
 %%
 
 /* The closing %% above marks the end of the Rules section and the beginning
