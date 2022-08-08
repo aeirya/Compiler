@@ -68,7 +68,15 @@ template<class Element> class List {
     void RemoveAt(int index)
 	{ Assert(index >= 0 && index < NumElements());
 	  elems.erase(elems.begin() + index); }
-          
+
+         // Removes last element
+         // Raises assert if list is empty
+    void Remove()
+  {
+    int n = NumElements();
+    Assert(n > 0);
+    elems.ease(elems.begin()); }
+
        // These are some specific methods useful for lists of ast nodes
        // They will only work on lists of elements that respond to the
        // messages, but since C++ only instantiates the template if you use
@@ -77,10 +85,6 @@ template<class Element> class List {
     void SetParentAll(Node *p)
         { for (int i = 0; i < NumElements(); i++)
              Nth(i)->SetParent(p); }
-    void PrintAll(int indentLevel, const char *label = NULL)
-        { for (int i = 0; i < NumElements(); i++)
-             Nth(i)->Print(indentLevel, label); }
-             
 
 };
 

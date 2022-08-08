@@ -1,7 +1,9 @@
 
 ## todo
 
-- [ ] add stanford files
+- [x] add stanford files
+- [ ] merge parsers
+- [ ] merge scanners
 - [ ] add missing features from previous phases
 
 - [ ] add scoping
