@@ -17,7 +17,7 @@
  *
  *   int Sum(List<int> *list) {
  *       int sum = 0;
- *       for (int i = 0; i < list->NumElements(); i++) {
+ *       for (int i = 0; i < list->size(); i++) {
  *          int val = list->Nth(i);
  *          sum += val;
  *       }
@@ -44,36 +44,36 @@ template<class Element> class List {
     List() {}
 
            // Returns count of elements currently in list
-    int NumElements() const
+    int size() const
 	{ return elems.size(); }
 
           // Returns element at index in list. Indexing is 0-based.
           // Raises an assert if index is out of range.
-    Element Nth(int index) const
-	{ Assert(index >= 0 && index < NumElements());
+    Element get(int index) const
+	{ Assert(index >= 0 && index < size());
 	  return elems[index]; }
 
           // Inserts element at index, shuffling over others
           // Raises assert if index out of range
-    void InsertAt(const Element &elem, int index)
-	{ Assert(index >= 0 && index <= NumElements());
+    void insert(const Element &elem, int index)
+	{ Assert(index >= 0 && index <= size());
 	  elems.insert(elems.begin() + index, elem); }
 
           // Adds element to list end
-    void Append(const Element &elem)
+    void append(const Element &elem)
 	{ elems.push_back(elem); }
 
          // Removes element at index, shuffling down others
          // Raises assert if index out of range
-    void RemoveAt(int index)
-	{ Assert(index >= 0 && index < NumElements());
+    void remove(int index)
+	{ Assert(index >= 0 && index < size());
 	  elems.erase(elems.begin() + index); }
 
          // Removes last element
          // Raises assert if list is empty
-    void Remove()
+    void remove()
   {
-    int n = NumElements();
+    int n = size();
     Assert(n > 0);
     elems.ease(elems.begin()); }
 
@@ -83,9 +83,16 @@ template<class Element> class List {
        // you can still have Lists of ints, chars*, as long as you 
        // don't try to SetParentAll on that list.
     void SetParentAll(Node *p)
-        { for (int i = 0; i < NumElements(); i++)
-             Nth(i)->SetParent(p); }
+        { for (int i = 0; i < size(); i++)
+             get(i)->SetParent(p); }
 
+    typename deque<Element>::iterator begin() {
+      return elems.begin();
+    }
+
+    typename deque<Element>::iterator end() {
+      return elems.end();
+    }
 };
 
 #endif
