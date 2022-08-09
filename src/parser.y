@@ -58,8 +58,6 @@ void yyerror(const char *msg); // standard error-handling routine
     VarDecl *varDecl;
     List<VarDecl*> *varDeclList;
 
-    StmtBlock *stmtBlock;
-
     Stmt *stmt;
     List<Stmt*> *stmtList;
 
@@ -70,6 +68,8 @@ void yyerror(const char *msg); // standard error-handling routine
     Operator *op;
 
     Identifier *id;
+
+    FnDecl *fnDecl;
 }
 
 
@@ -93,7 +93,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <varDeclList>  VarDeclList 
 %type <varDecl>      VarDecl
 
-%type <stmtBlock> StmtBlock
+%type <stmt> StmtBlock
 %type <stmtList>  StmtBody
 %type <stmt>      Statement
 
@@ -106,13 +106,16 @@ void yyerror(const char *msg); // standard error-handling routine
 
 %type <id>        ID
 
+%type <varDeclList>  formals formals_nonempty
+%type <fnDecl>       FunctionDecl
+
 %%
 /* Rules
  * -----
 	 
  */
-Program   :     DeclList            { 
-                                      @1; 
+Program   :     DeclList            {
+                                      @1;
                                       Program *program = new Program($1);
                                       // if no errors, advance to next phase
                                       if (ReportError::NumErrors() == 0) 
@@ -125,21 +128,27 @@ DeclList  :     DeclList Decl       { ($$=$1)->Append($2); }
           |     Decl                { ($$ = new List<Decl*>)->Append($1); }
           ;
 
-Decl      :     VarDecl             { /* pp2: replace with correct rules  */ } 
-          |     FunctionDecl        {}
-          |     T_ID                { printf("just an ID!\n"); }    // TODO: remove this
+Decl      :     VarDecl             { $$ = $1; }           
+          |     FunctionDecl        { $$ = $1; }
           ;
 
-FunctionDecl:   Type T_ID '(' formals ')' StmtBlock                 //  Type ident (Formals) StmtBlock
-            |   T_Void T_ID '(' formals ')' StmtBlock               //  void ident (Formals) StmtBlock
+FunctionDecl:   Type ID '(' formals ')' StmtBlock 
+                { $$ = new FnDecl($2, $1, $4);
+                  $$->SetFunctionBody($6); }   
+                //  Type ident (Formals) StmtBlock
+            |   T_Void ID '(' formals ')' StmtBlock
+                { $$ = new FnDecl($2, Type::voidType, $4);
+                 $$->SetFunctionBody($6); }   
+                //  void ident (Formals) StmtBlock
             ;
 
 formals   :     formals_nonempty
-          |     /* epsilon */
+          |     /* epsilon */       { $$ = new List<VarDecl*>; }
           ;
 
-formals_nonempty:   Variable
-                |   formals_nonempty ',' Variable                   //  Variable+ ,
+// TODO: remove variable struct
+formals_nonempty:   Variable                            { ($$ = new List<VarDecl*>)->Append(new VarDecl($1->id, $1->type)); }
+                |   formals_nonempty ',' Variable       { ($$ = $1)->Append(new VarDecl($3->id, $3->type)); }   //  Variable+ ,
                 ;
 
 VarDecl   :     Variable ';'        { $$ = new VarDecl($1->id, $1->type); }
@@ -206,7 +215,7 @@ arith_expr:     expr_ arith_op arith_expr       { $$ = new ArithmeticExpr($1, $2
                                                   std::cout << merged->toCode() << std::endl;
 
                                                   $$ = merged;
-}
+                                                }
           |     '-' expr_                       { $$ = new ArithmeticExpr(new Operator(yylloc, "neg"), $2); } 
           |     expr_                           
           ;

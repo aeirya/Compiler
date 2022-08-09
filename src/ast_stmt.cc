@@ -8,7 +8,7 @@
 #include "ast_expr.h"
 
 
-Program::Program(List<Decl*> *d) {
+Program::Program(List<Decl*> *d) : decls(d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
 }
