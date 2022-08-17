@@ -8,11 +8,22 @@
 #include "ast_expr.h"
 
 #include "semantic.hh"
-#include "scope_mngr.hh"
 
 Program::Program(List<Decl*> *d) : decls(d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
+}
+
+Json::Value Program::toJson() {
+    Json::Value val;
+    Json::Value vec(Json::arrayValue);
+    for (Decl*& decl : *decls) {
+        // replace with decl.tojson
+        // vec.append(Json::Value("decl"));
+        vec.append(decl->toJson());
+    }
+    val["decls"] = vec;
+    return val; 
 }
 
 void Program::Check() {
@@ -26,9 +37,8 @@ void Program::Check() {
 
     SemanticAnalyzer* sem = new SemanticAnalyzer;
     ScopeManager* scope = sem->getScopeManager();
-
     for (Decl*& decl : *decls) {
-        // decl->Check(sem);
+        decl->Check(sem);
     }
 
     delete sem;

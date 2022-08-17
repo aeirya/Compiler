@@ -33,6 +33,12 @@ class Type : public Node
     virtual void PrintToStream(ostream& out) { out << typeName; }
     friend ostream& operator<<(ostream& out, Type *t) { t->PrintToStream(out); return out; }
     virtual bool IsEquivalentTo(Type *other) { return this == other; }
+
+    Json::Value toJson() {
+        cout << "damn" << endl;
+        if (this == intType) return "int";
+        return "unknown";
+    }
 };
 
 class NamedType : public Type 

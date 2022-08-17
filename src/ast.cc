@@ -22,3 +22,8 @@ Identifier::Identifier(yyltype loc, const char *n) : Node(loc) {
     name = strdup(n);
 } 
 
+Json::Value Node::toJson() {
+    Json::Value val = Json::Value(Json::objectValue);
+    val["node_type"] = "node";
+    return val;
+}

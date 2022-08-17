@@ -15,6 +15,7 @@
 
 #include "list.h"
 #include "ast.h"
+#include "json/json.h"
 
 class Decl;
 class VarDecl;
@@ -28,6 +29,7 @@ class Program : public Node
   public:
      Program(List<Decl*> *declList);
      void Check();
+     Json::Value toJson();
 };
 
 class Stmt : public Node
