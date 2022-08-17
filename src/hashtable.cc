@@ -68,6 +68,27 @@ Value Hashtable<Value>::Lookup(const char *key)
 }
 
 
+/* Hashtable::Contains
+ * ---------------------
+ */
+template <class Value> 
+bool Hashtable<Value>::Contains(const char* key) {
+  return this->Lookup(key) != NULL;
+}
+
+
+/* Hashtable::Remove
+ * ---------------------
+ */
+template <class Value> 
+void Hashtable<Value>::Remove(const char* key) {
+  Value val = this->Lookup(key);
+  if (val != NULL) {
+    Remove(key, val);
+  }
+}
+
+
 /* Hashtable::NumEntries
  * ---------------------
  */

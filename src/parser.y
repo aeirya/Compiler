@@ -124,8 +124,8 @@ Program   :     DeclList            {
           |     StmtBody            // gimmick
           ;
 
-DeclList  :     DeclList Decl       { ($$=$1)->Append($2); }
-          |     Decl                { ($$ = new List<Decl*>)->Append($1); }
+DeclList  :     DeclList Decl       { ($$=$1)->append($2); }
+          |     Decl                { ($$ = new List<Decl*>)->append($1); }
           ;
 
 Decl      :     VarDecl             { $$ = $1; }           
@@ -147,8 +147,8 @@ formals   :     formals_nonempty
           ;
 
 // TODO: remove variable struct
-formals_nonempty:   Variable                            { ($$ = new List<VarDecl*>)->Append(new VarDecl($1->id, $1->type)); }
-                |   formals_nonempty ',' Variable       { ($$ = $1)->Append(new VarDecl($3->id, $3->type)); }   //  Variable+ ,
+formals_nonempty:   Variable                            { ($$ = new List<VarDecl*>)->append(new VarDecl($1->id, $1->type)); }
+                |   formals_nonempty ',' Variable       { ($$ = $1)->append(new VarDecl($3->id, $3->type)); }   //  Variable+ ,
                 ;
 
 VarDecl   :     Variable ';'        { $$ = new VarDecl($1->id, $1->type); }
@@ -172,11 +172,11 @@ StmtBlock :     '{' VarDeclList StmtBody '}'    { $$ = new StmtBlock($2, $3); }
           |     '{' StmtBody '}'                { $$ = new StmtBlock(new List<VarDecl*>, $2); }
           ;
 
-VarDeclList :   VarDeclList VarDecl { ($$=$1)->Append($2); }
-            |   VarDecl             { ($$ = new List<VarDecl*>)->Append($1); }
+VarDeclList :   VarDeclList VarDecl { ($$=$1)->append($2); }
+            |   VarDecl             { ($$ = new List<VarDecl*>)->append($1); }
             ;
 
-StmtBody  :     Statement StmtBody  { ($$=$2)->Append($1); }
+StmtBody  :     Statement StmtBody  { ($$=$2)->append($1); }
           |     StmtBlock StmtBody  { $$ = $2; }                // TODO: handle this
           |     /* epsilon */       { $$ = new List<Stmt*>; }
           ;

@@ -81,6 +81,10 @@ template<class Value> class Hashtable {
           // visit each value in the table in alphabetical order.
      Iterator<Value> GetIterator();
 
+          // Remove lastmost entered item with this key if available
+     void Remove(const char *key);
+
+     bool Contains(const char *key);
 };
 
 

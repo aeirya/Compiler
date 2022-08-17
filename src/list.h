@@ -93,6 +93,10 @@ template<class Element> class List {
     typename deque<Element>::iterator end() {
       return elems.end();
     }
+
+    void clear() {
+      elems.clear();
+    }
 };
 
 #endif
