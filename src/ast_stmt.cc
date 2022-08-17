@@ -7,6 +7,8 @@
 #include "ast_decl.h"
 #include "ast_expr.h"
 
+#include "semantic.hh"
+#include "scope_mngr.hh"
 
 Program::Program(List<Decl*> *d) : decls(d) {
     Assert(d != NULL);
@@ -21,6 +23,15 @@ void Program::Check() {
      *      checking itself, which makes for a great use of inheritance
      *      and polymorphism in the node classes.
      */
+
+    SemanticAnalyzer* sem = new SemanticAnalyzer;
+    ScopeManager* scope = sem->getScopeManager();
+
+    for (Decl*& decl : *decls) {
+        // decl->Check(sem);
+    }
+
+    delete sem;
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -57,5 +68,3 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     Assert(a != NULL);
     (args=a)->SetParentAll(this);
 }
-
-

@@ -18,6 +18,9 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     (type=t)->SetParent(this);
 }
   
+// void VarDecl::Check(SemanticAnalyzer* sem) {
+//     sem->getScopeManager()->declVar(id, this);
+// }
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
     // extends can be NULL, impl & mem may be empty lists but cannot be NULL
@@ -28,11 +31,18 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     (members=m)->SetParentAll(this);
 }
 
+// void ClassDecl::Check(SemanticAnalyzer* sem) {
+// }
+
 
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     Assert(n != NULL && m != NULL);
     (members=m)->SetParentAll(this);
 }
+
+// void InterfaceDecl::Check(SemanticAnalyzer* sem) {
+// }
+
 
 	
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -41,6 +51,10 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     (formals=d)->SetParentAll(this);
     body = NULL;
 }
+
+// void FnDecl::Check(SemanticAnalyzer* sem) {
+// }
+
 
 void FnDecl::SetFunctionBody(Stmt *b) { 
     (body=b)->SetParent(this);
