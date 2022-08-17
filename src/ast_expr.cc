@@ -87,6 +87,9 @@ template <typename T>
 T Operator::apply(T l, T r) {
     char* t = tokenString;
     
+    // str compare
+    // +: sum
+    // -: sub
     if (t[0] == 's' && t[1] == 'u') {
         if (t[2] == 'm') return l + r;
         if (t[2] == 'b') return l - r;

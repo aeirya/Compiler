@@ -59,6 +59,10 @@ class Identifier : public Node
   public:
     Identifier(yyltype loc, const char *name);
     friend ostream& operator<<(ostream& out, Identifier *id) { return out << id->name; }
+
+    bool hasSameName(Identifier* other) { return strcmp(name, other->name) == 0; }
+
+    char* getName() { return name; }
 };
 
 
