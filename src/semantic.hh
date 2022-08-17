@@ -3,6 +3,8 @@
 
 #include "scope_mngr.hh"
 
+class ScopeManager;
+
 class SemanticAnalyzer {
     private:
     ScopeManager* scopeManager;

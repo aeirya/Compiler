@@ -25,6 +25,4 @@ class ScopeManager {
 
 // TODO: remove scope level field (not used)
 
-#include "scope_mngr.cc"
-
 #endif
