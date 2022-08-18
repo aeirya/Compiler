@@ -32,7 +32,7 @@ class Decl : public Node
     Decl(Identifier *name);
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
 
-    virtual void Check(SemanticAnalyzer*) = 0;
+    virtual void Check(SemanticAnalyzer*) { };
 
     Json::Value toJson();
 };
