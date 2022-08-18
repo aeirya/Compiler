@@ -8,6 +8,8 @@
 #include <string.h> // strdup
 #include <stdio.h>  // printf
 
+#include "semantic.hh"
+
 Node::Node(yyltype loc) {
     location = new yyltype(loc);
     parent = NULL;
@@ -27,3 +29,16 @@ Json::Value Node::toJson() {
     val["node_type"] = "node";
     return val;
 }
+
+/// return true if error
+bool Node::Check(SemanticAnalyzer *sem) {
+    // nothing
+    return false;
+}
+
+bool Identifier::Check(SemanticAnalyzer* sem) {
+    return sem->getScopeManager()->isDefined(this);
+}
+
+
+

@@ -34,11 +34,14 @@
 #include "location.h"
 #include <iostream>
 
-
 #include "json/json.h"
 #include "json/json-forwards.h"
 
+#include "list.h"
+
 using namespace std;
+
+class SemanticAnalyzer;
 
 class Node  {
   protected:
@@ -55,6 +58,19 @@ class Node  {
     Node *GetParent()        { return parent; }
 
     virtual Json::Value toJson();
+    virtual bool Check(SemanticAnalyzer*);
+
+  private:
+    friend void DropErrorNodes(SemanticAnalyzer* sem, List<Node*>& nodes) {
+      int i=0;
+        for (auto node: nodes) {
+            if (node->Check(sem)) {
+                nodes.remove(i);
+            } else {
+                ++i;
+            }
+        }
+    }
 };
    
 
@@ -70,6 +86,8 @@ class Identifier : public Node
     bool hasSameName(Identifier* other) { return strcmp(name, other->name) == 0; }
 
     char* getName() { return name; }
+
+    bool Check(SemanticAnalyzer *sem);
 };
 
 

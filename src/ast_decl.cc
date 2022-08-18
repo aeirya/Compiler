@@ -6,6 +6,8 @@
 #include "ast_type.h"
 #include "ast_stmt.h"
 
+#include "semantic.hh"
+
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
@@ -33,18 +35,11 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     (members=m)->SetParentAll(this);
 }
 
-void ClassDecl::Check(SemanticAnalyzer* sem) {
-}
-
 
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     Assert(n != NULL && m != NULL);
     (members=m)->SetParentAll(this);
 }
-
-void InterfaceDecl::Check(SemanticAnalyzer* sem) {
-}
-
 
 	
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -53,10 +48,6 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     (formals=d)->SetParentAll(this);
     body = NULL;
 }
-
-void FnDecl::Check(SemanticAnalyzer* sem) {
-}
-
 
 void FnDecl::SetFunctionBody(Stmt *b) { 
     (body=b)->SetParent(this);
@@ -87,8 +78,17 @@ Json::Value FnDecl::toJson() {
 
 /** Decl::Check implementations */
 
-void VarDecl::Check(SemanticAnalyzer* sem) {
+bool VarDecl::Check(SemanticAnalyzer* sem) {
     // TODO: bug here: symbol not found declvar
     auto scope = sem->getScopeManager();
     scope->declVar(id, this);
+}
+
+bool ClassDecl::Check(SemanticAnalyzer* sem) {
+}
+
+bool InterfaceDecl::Check(SemanticAnalyzer* sem) {
+}
+
+bool FnDecl::Check(SemanticAnalyzer* sem) {
 }

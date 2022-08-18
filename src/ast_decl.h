@@ -16,12 +16,14 @@
 #include "ast.h"
 #include "list.h"
 
-#include "semantic.hh"
+#include "json/json-forwards.h"
 
 class Type;
 class NamedType;
 class Identifier;
 class Stmt;
+
+class SemanticAnalyzer;
 
 class Decl : public Node 
 {
@@ -32,7 +34,7 @@ class Decl : public Node
     Decl(Identifier *name);
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
 
-    virtual void Check(SemanticAnalyzer*) { };
+    bool Check(SemanticAnalyzer*);
 
     Json::Value toJson();
 };
@@ -45,7 +47,7 @@ class VarDecl : public Decl
   public:
     VarDecl(Identifier *name, Type *type);
 
-    void Check(SemanticAnalyzer*) override;
+    bool Check(SemanticAnalyzer*);
 
     Json::Value toJson();
 };
@@ -61,7 +63,7 @@ class ClassDecl : public Decl
     ClassDecl(Identifier *name, NamedType *extends, 
               List<NamedType*> *implements, List<Decl*> *members);
 
-    void Check(SemanticAnalyzer*) override;
+    bool Check(SemanticAnalyzer*);
 };
 
 class InterfaceDecl : public Decl 
@@ -72,7 +74,7 @@ class InterfaceDecl : public Decl
   public:
     InterfaceDecl(Identifier *name, List<Decl*> *members);
 
-    void Check(SemanticAnalyzer*) override;
+    bool Check(SemanticAnalyzer*);
 };
 
 class FnDecl : public Decl 
@@ -86,7 +88,7 @@ class FnDecl : public Decl
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
     void SetFunctionBody(Stmt *b);
 
-    void Check(SemanticAnalyzer*) override;
+    bool Check(SemanticAnalyzer*);
     Json::Value toJson();
 };
 

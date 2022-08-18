@@ -1,7 +1,8 @@
 #include "scope_mngr.hh"
 
-ScopeManager::ScopeManager() : local() {
+ScopeManager::ScopeManager() {
     scopeLevel = 0;
+    local = new List<const char*>;
 }
 
 ScopeManager::~ScopeManager() {
@@ -9,26 +10,30 @@ ScopeManager::~ScopeManager() {
 
 void ScopeManager::beginScope() {
     scopeLevel += 1;
+    localStack.append(local);
+    local = new List<const char*>;
 }
 
 void ScopeManager::endScope() {
     scopeLevel -= 1;
 
-    for (const char* id: local) {
+    for (const char* id: *local) {
         global.Remove(id);
     }
-    local.clear();
+    local->clear();
+    delete local;
+
+    local = localStack.pop();
 }
 
 bool ScopeManager::isInLocalScope(const char* id) {
-    for (auto c: local) {
+    for (auto c: *local) {
         if (strcmp(c, id) == 0) return true;
     }
     return false;
 }
 
 void ScopeManager::declVar(Identifier* id, Decl* decl) {
-    // scope
     char* name = id->getName();
     // cout << "name is " << name << endl;
 
@@ -43,7 +48,14 @@ void ScopeManager::declVar(Identifier* id, Decl* decl) {
         ReportError::DeclConflict(decl, lookup);
     } else {
         // cout << "appending" << endl;
-        local.append(name);
+        local->append(name);
         global.Enter(name, decl, false);
     }
 }
+
+bool ScopeManager::isDefined(Identifier* id) {
+    return global.Contains(id->getName());
+}
+
+
+

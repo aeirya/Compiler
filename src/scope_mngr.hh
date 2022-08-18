@@ -10,8 +10,9 @@ class ScopeManager {
   private:
     int scopeLevel;
     Hashtable<Decl*> global;
-    List<const char*> local;
-
+    List<List<const char*>*> localStack;
+    List<const char*> *local;
+    
     bool isInLocalScope(const char*);
 
   public:
@@ -22,6 +23,7 @@ class ScopeManager {
     void endScope();
 
     void declVar(Identifier* name, Decl* decl);
+    bool isDefined(Identifier* name);
 };
 
 // TODO: remove scope level field (not used)

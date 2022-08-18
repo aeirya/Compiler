@@ -35,6 +35,7 @@ void Program::Check() {
 
     SemanticAnalyzer* sem = new SemanticAnalyzer;
     ScopeManager* scope = sem->getScopeManager();
+
     for (Decl*& decl : *decls) {
         decl->Check(sem);
     }

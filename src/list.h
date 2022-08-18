@@ -97,6 +97,12 @@ template<class Element> class List {
     void clear() {
       elems.clear();
     }
+
+    Element& pop() {
+      auto e = elems.back();
+      elems.pop_back();
+      return e;
+    }
 };
 
 #endif
