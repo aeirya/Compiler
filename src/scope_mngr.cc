@@ -1,7 +1,10 @@
 #include "scope_mngr.hh"
 
-ScopeManager::ScopeManager() {
+ScopeManager::ScopeManager() : local() {
     scopeLevel = 0;
+}
+
+ScopeManager::~ScopeManager() {
 }
 
 void ScopeManager::beginScope() {
@@ -17,11 +20,9 @@ void ScopeManager::endScope() {
     local.clear();
 }
 
-bool ScopeManager::isInLocalScope(char* id) {
-    if (local.size() == 0) return false;
-    
-    for (char* c: local) {
-        if (strcmp(id, c) == 0) return true;
+bool ScopeManager::isInLocalScope(const char* id) {
+    for (auto c: local) {
+        if (strcmp(c, id) == 0) return true;
     }
     return false;
 }
@@ -29,15 +30,20 @@ bool ScopeManager::isInLocalScope(char* id) {
 void ScopeManager::declVar(Identifier* id, Decl* decl) {
     // scope
     char* name = id->getName();
-    cout << "name is " << name << endl;
+    // cout << "name is " << name << endl;
 
     if (isInLocalScope(name)) {
-        cout << "decl var" << endl;
+        // cout << "decl var" << endl;
+        
         Decl* lookup = global.Lookup(name);
-        cout << "looked up" << endl;
+        if (lookup == NULL) 
+            cout << "lookup NULL" << endl;
+
+        // cout << "looked up" << endl;
         ReportError::DeclConflict(decl, lookup);
     } else {
-        cout << "appending" << endl;
+        // cout << "appending" << endl;
         local.append(name);
+        global.Enter(name, decl, false);
     }
 }

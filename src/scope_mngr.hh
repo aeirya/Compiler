@@ -10,12 +10,13 @@ class ScopeManager {
   private:
     int scopeLevel;
     Hashtable<Decl*> global;
-    List<char*> local;
-    
-    bool isInLocalScope(char*);
+    List<const char*> local;
+
+    bool isInLocalScope(const char*);
 
   public:
     ScopeManager();
+    ~ScopeManager();
 
     void beginScope();
     void endScope();

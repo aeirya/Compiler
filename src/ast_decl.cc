@@ -22,12 +22,6 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     Assert(n != NULL && t != NULL);
     (type=t)->SetParent(this);
 }
-  
-void VarDecl::Check(SemanticAnalyzer* sem) {
-    // TODO: bug here: symbol not found declvar
-    auto scope = sem->getScopeManager();
-    scope->declVar(id, this);
-}
 
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
@@ -68,6 +62,7 @@ void FnDecl::SetFunctionBody(Stmt *b) {
     (body=b)->SetParent(this);
 }
 
+/** Decl::toJson implementations */
 
 Json::Value VarDecl::toJson() {
     Json::Value val = Decl::toJson();
@@ -88,4 +83,12 @@ Json::Value FnDecl::toJson() {
     val["formals"] = formalsJson;
     val["body"] = body->toJson();
     return val;
+}
+
+/** Decl::Check implementations */
+
+void VarDecl::Check(SemanticAnalyzer* sem) {
+    // TODO: bug here: symbol not found declvar
+    auto scope = sem->getScopeManager();
+    scope->declVar(id, this);
 }

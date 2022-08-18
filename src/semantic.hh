@@ -10,10 +10,9 @@ class SemanticAnalyzer {
     ScopeManager* scopeManager;
     
     public:
-    ~SemanticAnalyzer() {
-        delete scopeManager;
-    }
-
+    ~SemanticAnalyzer();
+    SemanticAnalyzer();
+    
     ScopeManager* getScopeManager() {
         return scopeManager;
     }
