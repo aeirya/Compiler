@@ -78,3 +78,10 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     Assert(a != NULL);
     (args=a)->SetParentAll(this);
 }
+
+
+Json::Value StmtBlock::toJson() {
+    Json::Value val = Node::toJson();
+    val["node_type"] = "stmt_block";
+    return val;
+}

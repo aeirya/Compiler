@@ -47,6 +47,8 @@ class StmtBlock : public Stmt
     
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
+
+    Json::Value toJson();
 };
 
   

@@ -87,6 +87,7 @@ class FnDecl : public Decl
     void SetFunctionBody(Stmt *b);
 
     void Check(SemanticAnalyzer*) override;
+    Json::Value toJson();
 };
 
 #endif

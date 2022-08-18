@@ -29,13 +29,6 @@ void VarDecl::Check(SemanticAnalyzer* sem) {
 }
 
 
-Json::Value VarDecl::toJson() {
-    Json::Value val = Decl::toJson();
-    val["node_type"] = "var";
-    val["type"] = type->toJson();
-    return val;
-}
-
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
     // extends can be NULL, impl & mem may be empty lists but cannot be NULL
     Assert(n != NULL && imp != NULL && m != NULL);     
@@ -75,4 +68,23 @@ void FnDecl::SetFunctionBody(Stmt *b) {
 }
 
 
+Json::Value VarDecl::toJson() {
+    Json::Value val = Decl::toJson();
+    val["node_type"] = "var_decl";
+    val["type"] = type->toJson();
+    return val;
+}
 
+Json::Value FnDecl::toJson() {
+    Json::Value val = Decl::toJson();
+    val["node_type"] = "fn_decl";
+    val["return_type"] = returnType->toJson();
+
+    Json::Value formalsJson(Json::arrayValue);
+    for (VarDecl* decl : *formals) {
+        formalsJson.append(decl->toJson());
+    }
+    val["formals"] = formalsJson;
+    val["body"] = body->toJson();
+    return val;
+}
