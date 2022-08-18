@@ -25,7 +25,8 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
   
 void VarDecl::Check(SemanticAnalyzer* sem) {
     // TODO: bug here: symbol not found declvar
-    // sem->getScopeManager()->declVar(id, this);
+    auto scope = sem->getScopeManager();
+    scope->declVar(id, this);
 }
 
 

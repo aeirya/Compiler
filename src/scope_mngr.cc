@@ -17,8 +17,10 @@ void ScopeManager::endScope() {
     local.clear();
 }
 
-bool ScopeManager::isInLocalScope(const char* id) {
-    for (const char* c: local) {
+bool ScopeManager::isInLocalScope(char* id) {
+    if (local.size() == 0) return false;
+    
+    for (char* c: local) {
         if (strcmp(id, c) == 0) return true;
     }
     return false;
@@ -27,7 +29,15 @@ bool ScopeManager::isInLocalScope(const char* id) {
 void ScopeManager::declVar(Identifier* id, Decl* decl) {
     // scope
     char* name = id->getName();
+    cout << "name is " << name << endl;
+
     if (isInLocalScope(name)) {
-        ReportError::DeclConflict(decl, global.Lookup(name));
+        cout << "decl var" << endl;
+        Decl* lookup = global.Lookup(name);
+        cout << "looked up" << endl;
+        ReportError::DeclConflict(decl, lookup);
+    } else {
+        cout << "appending" << endl;
+        local.append(name);
     }
 }

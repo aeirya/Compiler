@@ -18,8 +18,6 @@ Json::Value Program::toJson() {
     Json::Value val;
     Json::Value vec(Json::arrayValue);
     for (Decl*& decl : *decls) {
-        // replace with decl.tojson
-        // vec.append(Json::Value("decl"));
         vec.append(decl->toJson());
     }
     val["decls"] = vec;
