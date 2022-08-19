@@ -17,6 +17,7 @@
 #include "list.h"
 
 #include "json/json-forwards.h"
+#include "semantic.hh"
 
 class Type;
 class NamedType;
@@ -32,6 +33,8 @@ class Decl : public Node
   
   public:
     Decl(Identifier *name);
+    virtual ~Decl();
+
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
 
     bool Check(SemanticAnalyzer*);
@@ -46,6 +49,7 @@ class VarDecl : public Decl
     
   public:
     VarDecl(Identifier *name, Type *type);
+    virtual ~VarDecl();
 
     bool Check(SemanticAnalyzer*);
 
@@ -62,6 +66,7 @@ class ClassDecl : public Decl
   public:
     ClassDecl(Identifier *name, NamedType *extends, 
               List<NamedType*> *implements, List<Decl*> *members);
+    ~ClassDecl();
 
     bool Check(SemanticAnalyzer*);
 };
@@ -73,6 +78,7 @@ class InterfaceDecl : public Decl
     
   public:
     InterfaceDecl(Identifier *name, List<Decl*> *members);
+    ~InterfaceDecl();
 
     bool Check(SemanticAnalyzer*);
 };
@@ -86,6 +92,8 @@ class FnDecl : public Decl
     
   public:
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
+    ~FnDecl();
+
     void SetFunctionBody(Stmt *b);
 
     bool Check(SemanticAnalyzer*);

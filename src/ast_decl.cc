@@ -78,6 +78,10 @@ Json::Value FnDecl::toJson() {
 
 /** Decl::Check implementations */
 
+bool Decl::Check(SemanticAnalyzer* sem) {
+    return false;
+}
+
 bool VarDecl::Check(SemanticAnalyzer* sem) {
     // TODO: bug here: symbol not found declvar
     auto scope = sem->getScopeManager();
@@ -92,3 +96,13 @@ bool InterfaceDecl::Check(SemanticAnalyzer* sem) {
 
 bool FnDecl::Check(SemanticAnalyzer* sem) {
 }
+
+Decl::~Decl() {}
+
+VarDecl::~VarDecl() {}
+
+ClassDecl::~ClassDecl() {}
+
+InterfaceDecl::~InterfaceDecl() {}
+
+FnDecl::~FnDecl() {}

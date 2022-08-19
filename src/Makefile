@@ -12,7 +12,7 @@ default: $(PRODUCTS)
 
 # Set up the list of source and object files
 SRCS = ast.cc ast_decl.cc ast_expr.cc ast_stmt.cc ast_type.cc errors.cc utility.cc main.cc\
-jsoncpp.cc scope_mngr.cc
+jsoncpp.cc scope_mngr.cc semantic.cc
 
 # OBJS can deal with either .cc or .c files listed in SRCS
 OBJS = y.tab.o lex.yy.o $(patsubst %.cc, %.o, $(filter %.cc,$(SRCS))) $(patsubst %.c, %.o, $(filter %.c, $(SRCS)))
@@ -30,7 +30,7 @@ YACC = bison
 # We want debugging and most warnings, but lex/yacc generate some
 # static symbols we don't use, so turn off unused warnings to avoid clutter
 # Also STL has some signed/unsigned comparisons we want to suppress
-CFLAGS = -g -Wall -Wno-unused -Wno-sign-compare -std=c++14 -w
+CFLAGS = -g -Wall -Wno-unused -Wno-sign-compare -std=c++14 -w -frtti
 
 # The -d flag tells lex to set up for debugging. Can turn on/off by
 # setting value of global yy_flex_debug inside the scanner itself
