@@ -49,3 +49,11 @@ report/
 # zip and logs
 *.zip
 *.log
+
+dcc
+y.*
+.gitignore
+
+.VSCodeCounter
+*.class
+
