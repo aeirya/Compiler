@@ -26,9 +26,11 @@ void yyerror(const char *msg); // standard error-handling routine
 /* Tokens
  * ------
  */
+// types
 %token   T_Void T_Bool T_Int T_Double T_String T_Class 
 %token   T_LessEqual T_GreaterEqual T_Equal T_NotEqual T_Dims
 %token   T_And T_Or T_Null T_Extends T_This T_Interface T_Implements
+// keywords
 %token   T_While T_For T_If T_Else T_Return T_Break
 %token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
 
@@ -120,8 +122,10 @@ Program   :     DeclList            {
                                       // if no errors, advance to next phase
                                       if (ReportError::NumErrors() == 0) 
                                           program->Check(); 
-                                      
-                                      cout << program->toJson() << endl;
+                                      if (ReportError::NumErrors() == 0)
+                                          program->CodeGen();
+
+                                      delete program;
                                     }
           |     StmtBody            // gimmick
           ;

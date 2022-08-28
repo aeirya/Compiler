@@ -32,6 +32,6 @@ void runJavaWithArgs(char* classpath, char* classname, int nArgs, ...) {
     }
 }
 
-void runJavaCompiler() {
-    runJava("../java/target/classes", "Other");
+void runJavaCompiler(const char* tree_path, const char* assembly_path) {
+    runJavaWithArgs("../java/target/classes", "Compiler", 2, tree_path, assembly_path);
 }

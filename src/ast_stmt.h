@@ -28,7 +28,9 @@ class Program : public Node
      
   public:
      Program(List<Decl*> *declList);
+     ~Program();
      void Check();
+     void CodeGen();
      Json::Value toJson();
 };
 

@@ -8,10 +8,18 @@
 #include "ast_expr.h"
 
 #include "semantic.hh"
+#include "java_runner.hh"
+#include "tree_saver.hh"
+
+#include <stdio.h>
 
 Program::Program(List<Decl*> *d) : decls(d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
+}
+
+Program::~Program() {
+    // implement later
 }
 
 Json::Value Program::toJson() {
@@ -41,6 +49,16 @@ void Program::Check() {
     }
 
     delete sem;
+}
+
+void Program::CodeGen() {
+    const char* tree_path = "tree.json";
+    const char* assembly_path = "a.s";
+
+    saveTree(this, tree_path);
+    runJavaCompiler(tree_path, assembly_path);
+
+    std::cout << "done!" << endl;
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
