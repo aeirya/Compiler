@@ -1,4 +1,6 @@
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.stream.Stream;
 
 import ast.node.statement.Program;
@@ -9,10 +11,9 @@ public class Compiler {
     
     void run(String treePath, String assemblyPath)throws FileNotFoundException {
         Program program = new JsonTreeReader().readTree(treePath);
-        program.print();
-        // var writer = new PrintWriter(new File(assemblyPath));
-        // compile(program).forEach(inst -> writer.write(inst.toString()));
-        // writer.close();
+        try (var writer = new PrintWriter(new File(assemblyPath))) {
+            compile(program).forEach(inst -> writer.write(inst.toString()));
+        }
     }
 
     Stream<Instruction> compile(Program program) {

@@ -13,12 +13,4 @@ public class Program extends Node {
         super();
         decls = new ArrayList<>();
     }
-
-    public void print() {
-        decls.forEach(VarDecl::print);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new Program().nodeType);
-    }
 }
