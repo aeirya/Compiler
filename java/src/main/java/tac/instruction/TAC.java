@@ -19,6 +19,13 @@ public class TAC extends Instruction {
         rd = Register.fromIndex(second);
     }
 
+    public TAC(OperationType opt, Register result, Register first, Register second) {
+        this.opt = opt;
+        rs = result;
+        rt = first;
+        rd = second;
+    }
+
     public String toString() {
         return opt.toString() + "\t" + 
             new StringJoiner(", ")

@@ -6,19 +6,18 @@ import java.util.List;
 import ast.node.Node;
 import ast.node.declaration.VarDecl;
 import compiler.ICompiler;
-import tac.Code;
 
 public class Program extends Node {
     private final List<VarDecl> decls;
+    private final List<Stmt> stmts;
 
     public Program() {
         super();
         decls = new ArrayList<>();
+        stmts = new ArrayList<>();
     }
 
-    public Code toCode(ICompiler compiler) {
-        return decls.stream().map(n -> n.toCode(compiler)).reduce(
-            new Code(), (c1, c2) -> c1.concat(c2)
-        );
+    public void toCode(ICompiler compiler) {
+        decls.stream().forEach(n->n.toCode(compiler));
     }
 }

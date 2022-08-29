@@ -49,4 +49,7 @@ public class Register {
     public static final Register FP = new SpecialRegister(RegisterType.FP);
     public static final Register RA = new SpecialRegister(RegisterType.RA);
     public static final Register T0 = new Register(RegisterType.TEMP, 0);
+    public static final Register T1 = new Register(RegisterType.TEMP, 1);
+    public static final Register T2 = new Register(RegisterType.TEMP, 2);
+    public static final Register S0 = new Register(RegisterType.SAVE, 0);
 }

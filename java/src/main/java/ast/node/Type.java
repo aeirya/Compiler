@@ -3,5 +3,9 @@ package ast.node;
 public enum Type {
     INT_CONSTANT,
     DOUBLE_CONSTANT,
-    PROGRAM
+    PROGRAM,
+    OPERATOR,
+    BINARY_EXPR,
+    VAR_DECL,
+    BINARY_OPERATOR
 }

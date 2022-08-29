@@ -6,5 +6,23 @@
 			"nodeType" : "VAR_DECL",
 			"type" : "int"
 		}
+	],
+	"stmts" :
+	[
+		{
+			"nodeType" : "BINARY_EXPR",
+			"op" : {
+				"type" : "BINARY_OPERATOR",
+				"token" : "add"
+			},
+			"left" : {
+				"type" : "INT_CONSTANT",
+				"value" : 2
+			},
+			"right" : {
+				"type" : "INT_CONSTANT",
+				"value" : 3
+			}
+		}
 	]
 }

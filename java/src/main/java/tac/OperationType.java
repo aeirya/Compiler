@@ -3,6 +3,7 @@ package tac;
 public enum OperationType {
     ADD,
     ADDI,
+    SUB,
     MULT,
     LW,
     SW

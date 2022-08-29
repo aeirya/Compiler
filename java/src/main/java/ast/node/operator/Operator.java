@@ -1,7 +1,13 @@
 package ast.node.operator;
 
-import ast.node.Node;
+import ast.node.expression.Expr;
 
-public class Operator extends Node {
+public abstract class Operator extends Expr {
+
+    final String token;
     
+    protected Operator(String token) {
+        super();
+        this.token = token;
+    }
 }

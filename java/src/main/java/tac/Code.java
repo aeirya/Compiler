@@ -13,6 +13,16 @@ public class Code {
         instructions = new ArrayList<>();
     }
 
+    public Code(Code code) {
+        this();
+        concat(code);
+    }
+
+    public Code(Instruction inst) {
+        this();
+        add(inst);
+    }
+
     public Code add(Instruction instruction) {
         instructions.add(instruction);
         return this;

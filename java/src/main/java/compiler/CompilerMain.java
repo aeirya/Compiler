@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.stream.Stream;
 
 import ast.node.statement.Program;
-import tac.instruction.Instruction;
 import util.JsonTreeReader;
 
 public class CompilerMain {

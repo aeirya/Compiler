@@ -2,7 +2,6 @@ package ast.node.expression;
 
 import ast.node.operator.Operator;
 import compiler.ICompiler;
-import tac.Code;
 
 public class AssignmentExpr extends BinaryExpr {
 
@@ -11,14 +10,14 @@ public class AssignmentExpr extends BinaryExpr {
     }
 
     @Override
-    public Code toCode(ICompiler compiler) {
-        Code a = right.toCode(compiler);
-        Code b = left.toCode(compiler);
+    public void toCode(ICompiler compiler) {
+        right.toCode(compiler);
+        left.toCode(compiler);
         
         // todo: pop and eval
         // Code c = new Code()
         //     .add(new )
 
-        return a.concat(b);
+        
     }
 }
