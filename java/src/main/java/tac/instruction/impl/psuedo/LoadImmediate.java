@@ -2,7 +2,6 @@ package tac.instruction.impl.psuedo;
 
 import tac.OperationType;
 import tac.instruction.Immediate;
-import tac.instruction.TAC;
 import tac.register.Register;
 
 public class LoadImmediate extends Immediate {

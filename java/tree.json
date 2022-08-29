@@ -1,0 +1,10 @@
+{
+	"decls" : 
+	[
+		{
+			"id" : "x",
+			"nodeType" : "VAR_DECL",
+			"type" : "int"
+		}
+	]
+}
